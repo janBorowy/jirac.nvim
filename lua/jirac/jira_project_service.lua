@@ -1,6 +1,8 @@
 local jira_service = require("jirac.jira_service")
 local curl = require("plenary.curl")
 
+local check_for_error = require("jirac.error").check_for_error
+
 local M = {}
 
 ---@class Array<T>: { [integer]: T }
@@ -20,11 +22,6 @@ local M = {}
 
 ---@class Error
 ---@field reason string
-
----@return table
-local function json_decode(body)
-    return vim.fn.json_decode(body)
-end
 
 local function get_url(action)
     return jira_service.get_jira_url("project", action)
@@ -54,19 +51,117 @@ end
 ---@return GetProjectsDto
 function M.get_projects(query)
     local opts = jira_service.get_base_opts()
-    opts.query = query
+    opts.query = query or {}
     local response = curl.get(get_url("search"), opts)
 
-    if response.status == 400 then
-        error "Bad request"
-    elseif response.status == 401 then
-        error "Not authorized"
-    elseif response.status == 404 then
-        error "Not found"
-    end
-
-    return serialize_project_response(json_decode(response.body))
+    return serialize_project_response(vim.fn.json_decode(response.body))
 end
 
+---@class ProjectCreateDto
+---@field key string
+---@field name string
+---@field projectTypeKey string
+---@field leadAccountId string
+---@field description string | nil
+---@field categoryId string | nil
+---@field avatarId string | nil
+---@field url string | nil A link to information about this project
+--[[
+---@field asigneeIype string | nil
+---@field filedConfigurationScheme integer | nil
+---@field issueSecurityScheme integer | nil
+---@field issueTypeScheme integer | nil
+---@field issueTypeScreenScheme integer | nil
+---@field notificationScheme integer | nil
+---@field permissionScheme integer | nil
+---@field projectTemplateKey integer | nil
+---@field workfloweScheme integer | nil
+--]]
+
+---@class ProjectCreateResponse
+---@field id string
+---@field key string
+---@field url string
+
+---@param dto ProjectCreateDto
+---@return ProjectCreateResponse
+function M.create_project(dto)
+    local opts = jira_service.post_base_opts()
+    opts.body = vim.fn.json_encode(dto)
+    local response = curl.post(get_url(), opts)
+
+    check_for_error(response)
+    P(response)
+
+    return vim.fn.json_decode(response.body)
+end
+
+---@param projectIdOrKey string
+function M.delete_project(projectIdOrKey)
+    local response = curl.delete(get_url(projectIdOrKey), jira_service.get_base_opts())
+    check_for_error(response)
+end
+
+---@param projectIdOrKey string
+function M.archive_project(projectIdOrKey)
+    local response = curl.post(get_url(projectIdOrKey .. "/archive"), jira_service.post_base_opts())
+    check_for_error(response)
+end
+
+---@class ProjectType
+---@field color string
+---@field descriptionI18nKey string
+---@field formattedKey string
+---@field icon string
+---@field key string
+
+---@return Array<ProjectType>
+function M.get_project_types()
+    local response = curl.get(get_url("type"), jira_service.get_base_opts())
+    check_for_error(response)
+    return vim.fn.json_decode(response.body)
+end
+
+---@class ProjectCategory
+---@field id string
+---@field name string
+---@field url string
+---@field description string
+
+---@return Array<ProjectCategory>
+function M.get_project_categories()
+    local response = curl.get(jira_service.get_jira_url("projectCategory"),
+                              jira_service.get_base_opts())
+    check_for_error(response)
+    return vim.tbl_map(function (c)
+        c.url = c.self
+        c.self = nil
+    end, vim.fn.json_decode(response.body))
+end
+
+---@class ProjectPutDto
+---@field assigneeType string | nil
+---@field categoryId integer | nil
+---@field description string | nil
+---@field issueSecurityScheme integer | nil
+---@field key string | nil
+---@field lead string | nil
+---@field leadAccountId string | nil
+---@field name string | nil
+---@field notificationScheme integer | nil
+---@field permissionScheme integer | nil
+---@field releasedProjectKeys Array<string> | nil
+---@field url string | nil
+---@field avatarId integer
+
+---@param projectIdOrKey string
+---@param dto ProjectPutDto
+function M.update_project(projectIdOrKey, dto)
+    local opts = jira_service.post_base_opts()
+    opts.body = vim.fn.json_encode(dto)
+    local response = curl.put(get_url(projectIdOrKey), opts)
+    check_for_error(response)
+    return transform_project(response.body)
+end
 
 return M
