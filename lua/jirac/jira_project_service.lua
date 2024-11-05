@@ -1,5 +1,6 @@
 local jira_service = require("jirac.jira_service")
 local curl = require("plenary.curl")
+local util = require("jirac.util")
 
 local check_for_error = require("jirac.error").check_for_error
 
@@ -115,11 +116,19 @@ end
 ---@field icon string
 ---@field key string
 
----@return Array<ProjectType>
+---@return table<string, ProjectType>
 function M.get_project_types()
     local response = curl.get(get_url("type"), jira_service.get_base_opts())
     check_for_error(response)
     return vim.fn.json_decode(response.body)
+end
+
+---@return table<string, ProjectType>
+function M.get_project_types_key_val()
+    return util.array_to_key_val_tbl(M.get_project_types(),
+        function (p)
+            return p.key
+        end)
 end
 
 ---@class ProjectCategory

@@ -1,5 +1,6 @@
 local nui = require("nui-components")
 local ProjectSubmitPanel = require("jirac.ui.project_submit_panel").ProjectSubmitPanel
+local ErrorPanel = require("jirac.ui.error_panel").ErrorPanel
 
 local M = {}
 
@@ -18,22 +19,16 @@ function M.JiraWindow:new(o)
         height = o.height
     })
 
-    self.panels = { ProjectSubmitPanel:new {parent = self, renderer = self.renderer} }
+    -- self.panels = { ProjectSubmitPanel:new {renderer = self.renderer} }
+    self.panels = { ErrorPanel:new { parent = self, renderer = self.renderer,
+        errors = {}}
+    }
 
     return o
 end
 
 function M.JiraWindow:show()
     self.renderer:render(self.panels[1].panel)
-end
-
-function M.JiraWindow:pop()
-    self.panels[#self.panels] = nil
-    if #self.panels ~= 0 then
-        self:show()
-    else
-        self:close()
-    end
 end
 
 function M.JiraWindow:close()
