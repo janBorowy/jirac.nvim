@@ -24,4 +24,15 @@ M.to_array = function (tbl)
     end
     return result
 end
+
+M.wrap_string = function (str, len)
+    local result = {}
+    for i = 0, math.ceil(string.len(str) / len) - 1 do
+        result[#result+1] = string.sub(str, i * len + 1,
+                    i * len + math.min(len, string.len(str) - i * len))
+    end
+    P(result)
+    return result
+end
+
 return M

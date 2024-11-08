@@ -1,9 +1,0 @@
-
-describe("jira_service", function()
-
-    it("should be requireable", function()
-        require("jira_service")
-
-    end)
-
-end)

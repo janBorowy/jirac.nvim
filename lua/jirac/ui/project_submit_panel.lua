@@ -1,10 +1,13 @@
 local nui = require("nui-components")
 local proj_service = require("jirac.jira_project_service")
 local user_service = require("jirac.jira_user_service")
+local ErrorPanel = require("jirac.ui.error_panel").ErrorPanel
 
 local M = {}
 
-M.ProjectSubmitPanel = {}
+M.ProjectSubmitPanel = {
+    size = { width = 90, height = 30 }
+}
 
 ---@param id string
 ---@return string
@@ -31,27 +34,32 @@ function M.ProjectSubmitPanel:_fetch_leader_selection_data()
 end
 
 function M.ProjectSubmitPanel:_handle_project_submit_error(obj)
+    local panel = ErrorPanel:new({
+        errors = obj.errors,
+        parent = self.parent
+    })
+    self.parent:push(panel)
 end
 
-function M.ProjectSubmitPanel:_handle_form_submit(is_valid)
+function M.ProjectSubmitPanel:_handle_form_submit()
     ---@type ProjectCreateDto
     local dto = {
         key = self:_get_field_value("key-field"),
         name = self:_get_field_value("name-field"),
         description = self:_get_field_value("description-field"),
-        projectTypeKey = self._project_type_signal:get_value().selected.key,
-        leadAccountId = self._leader_signal:get_value().selected.id
+        projectTypeKey = self.form_data.project_type_id,
+        leadAccountId = self.form_data.leader_id
     }
 
-    local success, obj = proj_service.create_project(dto)
+    local success, obj = pcall(proj_service.create_project, dto)
     if success then
-        self.parent:close()
+        self.parent:pop()
     else
-        self:handle_project_submit_error(obj)
+        self:_handle_project_submit_error(obj)
     end
 end
 
-function M.ProjectSubmitPanel:_create_project_panel()
+function M.ProjectSubmitPanel:build_nui_panel()
     self._leader_signal = nui.create_signal {
         selected = {}
     }
@@ -75,14 +83,16 @@ function M.ProjectSubmitPanel:_create_project_panel()
                 id = "key-field",
                 autofocus = true,
                 border_label = "Key",
-                flex = 1
-                -- validate = nui.validator.min_length(3) -- TODO: Validation?
+                flex = 1,
+                value = self.form_data.key,
+                on_change = function (v) self.form_data.key = v end
             },
             nui.text_input {
                 id = "name-field",
                 border_label = "Name",
-                flex = 1
-                -- validate = nui.validator.min_length(3)
+                flex = 1,
+                value = self.form_data.name,
+                on_change = function (v) self.form_data.name = v end
             }
         ),
         nui.columns(
@@ -91,25 +101,33 @@ function M.ProjectSubmitPanel:_create_project_panel()
                 flex = 1,
                 size = 5,
                 border_label = "Project Type",
-                selected = self._project_type_signal.selected,
-                data = self:_fetch_project_type_selection_data(),
+                selected = { id = self.form_data.project_type_id },
+                data = self.project_type_data,
                 multiselect = false,
-                on_select = function (node) self._project_type_signal.selected = node end
+                on_select = function (node)
+                    self._project_type_signal.selected = node
+                    self.form_data.project_type_id = node.id
+                end
                 },
             nui.select {
                 flex = 1,
                 size = 5,
                 border_label = "Leader",
-                selected = self._leader_signal.selected,
-                data = self:_fetch_leader_selection_data(),
+                selected = { id = self.form_data.leader_id },
+                data = self.leader_selection_data,
                 multiselect = false,
-                on_select = function (node) self._leader_signal.selected = node end
+                on_select = function (node)
+                    self._leader_signal.selected = node
+                    self.form_data.leader_id = node.id
+                end
             }
         ),
         nui.text_input {
             id = "description-field",
             flex = 1,
             border_label = "Description",
+            value = self.form_data.description,
+            on_change = function (v) self.form_data.description = v end
         },
         nui.button {
             label = "Submit",
@@ -119,17 +137,25 @@ function M.ProjectSubmitPanel:_create_project_panel()
     return self._form
 end
 
----@class ProjectPanelParams
+---@class ProjectPanel : Panel
 ---@field renderer any
 ---@field parent any
 
----@param o ProjectPanelParams
+---@param o ProjectPanel
 function M.ProjectSubmitPanel:new(o)
     o = o or {}
     self.__index = self
     self.renderer = o.renderer
     self.parent = o.parent
-    self.panel = self:_create_project_panel()
+    self.project_type_data = self:_fetch_project_type_selection_data()
+    self.leader_selection_data = self:_fetch_leader_selection_data()
+    self.form_data = {
+        key = "",
+        name = "",
+        description = "",
+        project_type_id = "",
+        leader_id = ""
+    }
     setmetatable(o, self)
     return o
 end
