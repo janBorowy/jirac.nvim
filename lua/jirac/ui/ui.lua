@@ -1,5 +1,6 @@
 local nui = require("nui-components")
 local ProjectSubmitPanel = require("jirac.ui.project_submit_panel").ProjectSubmitPanel
+local PromptPanel = require("jirac.ui.prompt_panel").PromptPanel
 local ErrorPanel = require("jirac.ui.error_panel").ErrorPanel
 
 local M = {}
@@ -61,7 +62,15 @@ function M.JiraWindow:new(o)
         height = o.height
     })
 
-    self.panels = { ProjectSubmitPanel:new { parent = o, renderer = o.renderer} }
+    self.panels = { PromptPanel:new {
+        renderer = o.renderer,
+        title = "Echo panel",
+        form_id = "echo_form_id",
+        border_label = "Text",
+        placeholder = "Enter input",
+        button_label = "echo",
+        on_submit = function (v) print(v) end
+    }}
 
     return o
 end

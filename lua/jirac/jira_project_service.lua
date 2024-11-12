@@ -15,7 +15,7 @@ local M = {}
 ---@field name string
 ---@field project_type_key string
 
----@class GetProjectsDto
+---@class SearchProjectsDto
 ---@field values Array<Project>
 ---@field maxResults integer
 ---@field total integer
@@ -39,7 +39,7 @@ local function transform_project(body)
     }
 end
 
----@return GetProjectsDto
+---@return SearchProjectsDto
 local function serialize_project_response(body)
     return {
         values = vim.tbl_map(transform_project, body.values),
@@ -49,8 +49,15 @@ local function serialize_project_response(body)
     }
 end
 
----@return GetProjectsDto
-function M.get_projects(query)
+---@class SearchProjectsQuery
+---@field startAt integer
+---@field maxResults integer
+---@field orderBy string
+---@field query string
+
+---@param query SearchProjectsQuery
+---@return SearchProjectsDto
+function M.search_projects(query)
     local opts = jira_service.get_base_opts()
     opts.query = query or {}
     local response = curl.get(get_url("search"), opts)

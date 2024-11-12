@@ -85,7 +85,10 @@ function M.ProjectSubmitPanel:build_nui_panel()
                 border_label = "Key",
                 flex = 1,
                 value = self.form_data.key,
-                on_change = function (v) self.form_data.key = v end
+                on_change = function (v) self.form_data.key = v end,
+                padding = {
+                    top = 1
+                }
             },
             nui.text_input {
                 id = "name-field",
@@ -145,8 +148,7 @@ end
 function M.ProjectSubmitPanel:new(o)
     o = o or {}
     self.__index = self
-    self.renderer = o.renderer
-    self.parent = o.parent
+    setmetatable(o, self)
     self.project_type_data = self:_fetch_project_type_selection_data()
     self.leader_selection_data = self:_fetch_leader_selection_data()
     self.form_data = {
@@ -156,7 +158,6 @@ function M.ProjectSubmitPanel:new(o)
         project_type_id = "",
         leader_id = ""
     }
-    setmetatable(o, self)
     return o
 end
 
