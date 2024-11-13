@@ -85,10 +85,7 @@ function M.ProjectSubmitPanel:build_nui_panel()
                 border_label = "Key",
                 flex = 1,
                 value = self.form_data.key,
-                on_change = function (v) self.form_data.key = v end,
-                padding = {
-                    top = 1
-                }
+                on_change = function (v) self.form_data.key = v end
             },
             nui.text_input {
                 id = "name-field",

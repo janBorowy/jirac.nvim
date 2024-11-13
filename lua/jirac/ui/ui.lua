@@ -2,6 +2,8 @@ local nui = require("nui-components")
 local ProjectSubmitPanel = require("jirac.ui.project_submit_panel").ProjectSubmitPanel
 local PromptPanel = require("jirac.ui.prompt_panel").PromptPanel
 local ErrorPanel = require("jirac.ui.error_panel").ErrorPanel
+local NavigationPanel = require("jirac.ui.navigation_panel").NavigationPanel
+local ProjectSearchPanel = require("jirac.ui.project_search_panel").ProjectSearchPanel
 
 local M = {}
 
@@ -12,12 +14,10 @@ local M = {}
 ---@class Panel
 ---@field size Size
 ---@field build_nui_panel function
+---@field parent any
+---@field renderer any
 
--- TODO: make configurable in plugin setup
-M.JiraWindow = {
-    width = 90,
-    height = 30,
-}
+M.JiraWindow = {}
 
 function M.JiraWindow:show()
     if not self.is_shown then
@@ -58,18 +58,31 @@ function M.JiraWindow:new(o)
     setmetatable(o, self)
 
     o.renderer = nui.create_renderer({
-        width = o.width,
-        height = o.height
+        keymap = {
+            close = "q",
+            -- focus_left = "h",
+            -- focus_down = "j",
+            -- focus_right = "l",
+            -- focus_up = "k"
+        }
     })
 
-    self.panels = { PromptPanel:new {
-        renderer = o.renderer,
-        title = "Echo panel",
-        form_id = "echo_form_id",
-        border_label = "Text",
-        placeholder = "Enter input",
-        button_label = "echo",
-        on_submit = function (v) print(v) end
+    o.renderer:add_mappings ({
+        {
+            mode = {'n', 'i', 'v'},
+            key = "<BS>",
+            handler = function () o:pop() end
+        }
+    })
+
+    -- self.panels = { NavigationPanel:new {
+    --     renderer = o.renderer,
+    --     parent = o
+    -- }}
+    self.panels = { ProjectSearchPanel:new {
+        renderer = o.rederer,
+        parent = o,
+        apiResponse = require("jirac.jira_project_service").search_projects({ query = "" })
     }}
 
     return o

@@ -1,5 +1,5 @@
 local nui = require("nui-components")
-local utils = require("jirac.util")
+local util = require("jirac.util")
 
 local M = {}
 
@@ -16,7 +16,7 @@ function M.ErrorPanel:_create_error_rows()
         rows[#rows + 1] = nui.paragraph {
             lines = vim.tbl_map(function (txt)
                 return nui.line(nui.text(txt))
-            end, utils.wrap_string(tostring(i) .. ". " .. k .. ": " .. v, self.size.width)),
+            end, util.wrap_string(tostring(i) .. ". " .. k .. ": " .. v, self.size.width)),
             is_focusable = true
         }
     end

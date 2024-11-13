@@ -50,9 +50,9 @@ local function serialize_project_response(body)
 end
 
 ---@class SearchProjectsQuery
----@field startAt integer
----@field maxResults integer
----@field orderBy string
+---@field startAt integer?
+---@field maxResults integer?
+---@field orderBy string?
 ---@field query string
 
 ---@param query SearchProjectsQuery
