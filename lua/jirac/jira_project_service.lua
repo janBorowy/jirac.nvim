@@ -99,7 +99,6 @@ function M.create_project(dto)
     local response = curl.post(get_url(), opts)
 
     check_for_error(response)
-    P(response)
 
     return vim.fn.json_decode(response.body)
 end

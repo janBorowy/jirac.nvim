@@ -31,7 +31,6 @@ M.wrap_string = function (str, len)
         result[#result+1] = string.sub(str, i * len + 1,
                     i * len + math.min(len, string.len(str) - i * len))
     end
-    P(result)
     return result
 end
 

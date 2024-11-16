@@ -4,6 +4,7 @@ local PromptPanel = require("jirac.ui.prompt_panel").PromptPanel
 local ErrorPanel = require("jirac.ui.error_panel").ErrorPanel
 local NavigationPanel = require("jirac.ui.navigation_panel").NavigationPanel
 local ProjectSearchPanel = require("jirac.ui.project_search_panel").ProjectSearchPanel
+local ProjectPanel = require("jirac.ui.project_panel").ProjectPanel
 
 local M = {}
 
@@ -13,11 +14,14 @@ local M = {}
 
 ---@class Panel
 ---@field size Size
+-- JiraWindow calls these panel methods in this order: init -> build_nui_panel -> deinit
+---@field init function?
 ---@field build_nui_panel function
+---@field deinit function?
 ---@field parent any
 ---@field renderer any
 
-M.JiraWindow = {}
+M.JiraWindow = { panels = {} }
 
 function M.JiraWindow:show()
     if not self.is_shown then
@@ -33,11 +37,14 @@ function M.JiraWindow:peek()
 end
 
 function M.JiraWindow:push(panel)
+    if panel.init then panel:init() end
     self.panels[#self.panels + 1] = panel
     self:update_nui()
 end
 
 function M.JiraWindow:pop()
+    local panel = self.panels[#self.panels]
+    if panel.deinit then panel:deinit() end
     self.panels[#self.panels] = nil
     if #self.panels ~= 0 then
         self:update_nui()
@@ -48,7 +55,7 @@ end
 
 function M.JiraWindow:update_nui()
     self.renderer:close()
-    self.renderer:set_size(self:peek().size)
+    self.renderer:set_size(self:peek().size or { width = 0, height = 0 } )
     self.renderer:render(self:peek():build_nui_panel())
 end
 
@@ -60,30 +67,26 @@ function M.JiraWindow:new(o)
     o.renderer = nui.create_renderer({
         keymap = {
             close = "q",
-            -- focus_left = "h",
-            -- focus_down = "j",
-            -- focus_right = "l",
-            -- focus_up = "k"
         }
     })
 
     o.renderer:add_mappings ({
         {
             mode = {'n', 'i', 'v'},
-            key = "<BS>",
+            key = "H",
             handler = function () o:pop() end
         }
     })
 
-    -- self.panels = { NavigationPanel:new {
+    -- o:push(NavigationPanel:new {
     --     renderer = o.renderer,
     --     parent = o
-    -- }}
-    self.panels = { ProjectSearchPanel:new {
-        renderer = o.rederer,
+    -- })
+    o:push(ProjectPanel:new {
+        renderer = o.renderer,
         parent = o,
-        apiResponse = require("jirac.jira_project_service").search_projects({ query = "" })
-    }}
+        project = require("jirac.jira_project_service").search_projects({ query = "SCRUM" }).values[1]
+    })
 
     return o
 end

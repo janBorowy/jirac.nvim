@@ -1,4 +1,5 @@
 local nui = require("nui-components")
+local utils = require("jirac.util")
 
 local M = {}
 M.PromptPanel = {
@@ -7,8 +8,10 @@ M.PromptPanel = {
 
 function M.PromptPanel:build_nui_panel()
     return nui.form({
-        id = "prompt_form",
-        on_submit = self.on_submit }, nui.gap(1),
+        id = self.form_id,
+        on_submit = self.on_submit
+    },
+    nui.gap(1),
     nui.paragraph {
         lines = self.title,
         align = "center",
@@ -42,12 +45,12 @@ end
 ---@class PromptPanel : Panel
 ---@field renderer any
 ---@field title string
+---@field form_id string
 ---@field border_label string
 ---@field placeholder string
 ---@field button_label string
----@field on_submit function
+---@field on_submit string
 
----@param o PromptPanel
 function M.PromptPanel:new(o)
     o = o or {}
     self.__index = self
