@@ -64,6 +64,33 @@ function M.JiraWindow:update_nui()
     )
 end
 
+---@class MappingAllModes
+---@field key string
+---@field handler function
+
+---@param mappings Array<MappingAllModes>
+function M.JiraWindow:add_mappings(mappings)
+    for _, v in ipairs(mappings) do
+        P(v)
+        self.renderer:add_mappings({{
+            mode = { "n", "i", "v" },
+            key = v.key,
+            handler = v.handler
+        }})
+    end
+end
+
+---@param mappings Array<string>
+function M.JiraWindow:clear_mappings(mappings)
+    for _, v in ipairs(mappings) do
+        self.renderer:add_mappings({{
+            mode = { "n", "i", "v" },
+            key = v,
+            handler = function () end
+        }})
+    end
+end
+
 function M.JiraWindow:new(o)
     o = o or {}
     self.__index = self

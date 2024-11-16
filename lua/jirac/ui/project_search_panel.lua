@@ -52,6 +52,43 @@ function M.ProjectSearchPanel:_get_total_pages_count()
     return math.ceil(self.apiResponse.total / maxProjectSearchResults)
 end
 
+function M.ProjectSearchPanel:init()
+    self.parent:add_mappings ({
+        {
+            key = "h",
+            handler = function ()
+                self:_handle_previous_page()
+            end
+        },
+        {
+            key = "l",
+            handler = function ()
+                self:_handle_next_page()
+            end
+        }
+    })
+end
+
+function M.ProjectSearchPanel:deinit()
+    self.parent:clear_mappings ({"l", "h"})
+end
+
+function M.ProjectSearchPanel:_handle_previous_page()
+    if self.current_page ~= 1 then
+        self.current_page = self.current_page - 1
+        local v = self.renderer:get_component_by_id("search-phrase-field").value
+        M.put_project_search_panel(self, v)
+    end
+end
+
+function M.ProjectSearchPanel:_handle_next_page()
+    if self.current_page < self:_get_total_pages_count() then
+        self.current_page = self.current_page + 1
+        local v = self.renderer:get_component_by_id("search-phrase-field").value
+        M.put_project_search_panel(self, v)
+    end
+end
+
 function M.ProjectSearchPanel:build_nui_panel()
     return nui.rows(
         nui.gap(1),
@@ -91,13 +128,7 @@ function M.ProjectSearchPanel:build_nui_panel()
                 flex = 1,
                 label = "<",
                 align = "right",
-                on_press = function ()
-                    if self.current_page ~= 1 then
-                        self.current_page = self.current_page - 1
-                        local v = self.renderer:get_component_by_id("search-phrase-field").value
-                        M.put_project_search_panel(self, v)
-                    end
-                end
+                on_press = function () self:_handle_previous_page() end
             },
             nui.paragraph {
                 flex = 1,
@@ -109,15 +140,7 @@ function M.ProjectSearchPanel:build_nui_panel()
                 id = "next-page-button",
                 flex = 1,
                 label = ">",
-                on_press = function ()
-                    if self.current_page < self:_get_total_pages_count() then
-                        self.current_page = self.current_page + 1
-                        local v = self.renderer:get_component_by_id("search-phrase-field").value
-                        M.put_project_search_panel(self, v)
-                        -- TODO: focus next page button
-                        -- self.renderer:get_component_by_id("next-page-button"):focus()
-                    end
-                end
+                on_press = function () self:_handle_next_page() end
             }
         )
     )
