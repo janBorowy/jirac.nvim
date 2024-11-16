@@ -3,7 +3,7 @@ local utils = require("jirac.util")
 
 local M = {}
 M.PromptPanel = {
-    size = { width = 45, height = 6 }
+    size = { width = 45, height = 7 }
 }
 
 function M.PromptPanel:build_nui_panel()
@@ -11,7 +11,6 @@ function M.PromptPanel:build_nui_panel()
         id = self.form_id,
         on_submit = self.on_submit
     },
-    nui.gap(1),
     nui.paragraph {
         lines = self.title,
         align = "center",

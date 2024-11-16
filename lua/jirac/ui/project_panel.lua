@@ -10,6 +10,19 @@ M.ProjectPanel = {
 }
 
 function M.ProjectPanel:_build_issues_column()
+    if #self.issues == 0 then
+        return nui.paragraph {
+            flex = 2,
+            lines = "No issues",
+            max_lines = 1,
+            autofocus = true,
+            padding = {
+                bottom = 1
+            },
+            align = "center"
+        }
+    end
+
     local key_column = {}
     local summary_column = {}
     local status_column = {}
@@ -78,7 +91,7 @@ function M.ProjectPanel:_build_details_column()
 end
 
 function M.ProjectPanel:build_nui_panel()
-    return pad_component(nui.rows(
+    return nui.rows(
         nui.paragraph {
             lines = self.project.key .. " " .. self.project.name,
             align = "center",
@@ -89,7 +102,7 @@ function M.ProjectPanel:build_nui_panel()
             self:_build_issues_column(),
             self:_build_details_column()
         )
-    ), 1, 3)
+    )
 end
 
 ---@class ProjectPanel : Panel

@@ -5,6 +5,7 @@ local ErrorPanel = require("jirac.ui.error_panel").ErrorPanel
 local NavigationPanel = require("jirac.ui.navigation_panel").NavigationPanel
 local ProjectSearchPanel = require("jirac.ui.project_search_panel").ProjectSearchPanel
 local ProjectPanel = require("jirac.ui.project_panel").ProjectPanel
+local ui_utils     = require("jirac.ui.ui_utils")
 
 local M = {}
 
@@ -55,8 +56,12 @@ end
 
 function M.JiraWindow:update_nui()
     self.renderer:close()
-    self.renderer:set_size(self:peek().size or { width = 0, height = 0 } )
-    self.renderer:render(self:peek():build_nui_panel())
+    self.renderer:set_size(self:peek().size or { width = 80, height = 30 } )
+    self.renderer:render(
+        ui_utils.pad_component(
+            self:peek():build_nui_panel()
+        , 1, 3)
+    )
 end
 
 function M.JiraWindow:new(o)
@@ -67,6 +72,8 @@ function M.JiraWindow:new(o)
     o.renderer = nui.create_renderer({
         keymap = {
             close = "q",
+            focus_next = {"<Tab>", "j"},
+            focus_prev = {"<Tab>", "k"}
         }
     })
 
@@ -78,15 +85,15 @@ function M.JiraWindow:new(o)
         }
     })
 
-    -- o:push(NavigationPanel:new {
-    --     renderer = o.renderer,
-    --     parent = o
-    -- })
-    o:push(ProjectPanel:new {
+    o:push(NavigationPanel:new {
         renderer = o.renderer,
-        parent = o,
-        project = require("jirac.jira_project_service").search_projects({ query = "SCRUM" }).values[1]
+        parent = o
     })
+    -- o:push(ProjectPanel:new {
+    --     renderer = o.renderer,
+    --     parent = o,
+    --     project = require("jirac.jira_project_service").search_projects({ query = "SCRUM" }).values[1]
+    -- })
 
     return o
 end
