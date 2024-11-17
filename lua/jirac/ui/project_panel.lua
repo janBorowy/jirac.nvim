@@ -1,5 +1,6 @@
 local nui = require("nui-components")
 local issue_service = require("jirac.jira_issue_service")
+local IssueSubmitPanel = require("jirac.ui.issue_submit_panel").IssueSubmitPanel
 
 local M = {}
 local maxIssueSearchResults = 25
@@ -7,6 +8,14 @@ local maxIssueSearchResults = 25
 M.ProjectPanel = {
     current_page = 1
 }
+
+function M.ProjectPanel:_handle_create_issue()
+    self.parent:push(IssueSubmitPanel:new {
+        renderer = self.renderer,
+        parent = self.parent,
+        project = self.project
+    })
+end
 
 function M.ProjectPanel:_get_total_pages_count()
     return math.ceil(#self.api_response.issues / maxIssueSearchResults)
@@ -58,7 +67,8 @@ function M.ProjectPanel:_build_issues_column()
             padding = {
                 bottom = 1
             },
-            align = "center"
+            align = "center",
+            autofocus = true
         }
     end
 
@@ -94,7 +104,7 @@ function M.ProjectPanel:_build_issues_column()
         padding = {
             bottom = 1,
         },
-        on_press = function () end,
+        on_press = function () self:_handle_create_issue() end,
         autofocus = true
     },
     nui.columns(

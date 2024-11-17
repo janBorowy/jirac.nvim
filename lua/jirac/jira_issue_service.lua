@@ -148,7 +148,6 @@ end
 ---@field project_id string
 ---@field summary string?
 ---@field description string?
----@field status_id string?
 ---@field assignee_id string?
 ---@field issue_type_id string?
 
@@ -156,9 +155,6 @@ end
 local function dto_to_fields(dto)
     return {
         fields = {
-            -- status = {
-            --     id = dto.status_id
-            -- },
             assignee = {
                 id = dto.assignee_id
             },

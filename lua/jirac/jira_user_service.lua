@@ -73,4 +73,24 @@ function M.find_users_assignable_to_project(query)
 
     return vim.fn.json_decode(response.body)
 end
+
+---@class FindUsersAssignableToIssueQuery
+---@field query string
+---@field project_id_or_key string
+
+---@param query FindUsersAssignableToIssueQuery
+---@return Array<UserDto>
+function M.find_users_assignable_to_issue(query)
+    local opts = jira_service.get_base_opts()
+    opts.query = {
+        query = query.query,
+        project = query.project_id_or_key
+    }
+    local response = curl.get(get_url("assignable/search"), opts)
+
+    check_for_error(response)
+
+    return vim.fn.json_decode(response.body)
+end
+
 return M

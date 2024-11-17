@@ -70,7 +70,6 @@ function M.ProjectSubmitPanel:build_nui_panel()
             id = "create_project_form",
             on_submit = function() self:_handle_form_submit() end,
         },
-        nui.gap(1),
         nui.paragraph {
             lines = "Create Project",
             align = "center",

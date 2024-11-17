@@ -1,9 +1,6 @@
 local nui = require("nui-components")
-local ProjectSubmitPanel = require("jirac.ui.project_submit_panel").ProjectSubmitPanel
-local PromptPanel = require("jirac.ui.prompt_panel").PromptPanel
-local ErrorPanel = require("jirac.ui.error_panel").ErrorPanel
+local IssueSubmitPanel = require("jirac.ui.issue_submit_panel").IssueSubmitPanel
 local NavigationPanel = require("jirac.ui.navigation_panel").NavigationPanel
-local ProjectSearchPanel = require("jirac.ui.project_search_panel").ProjectSearchPanel
 local ProjectPanel = require("jirac.ui.project_panel").ProjectPanel
 local ui_utils     = require("jirac.ui.ui_utils")
 
@@ -99,7 +96,7 @@ function M.JiraWindow:new(o)
         keymap = {
             close = "q",
             focus_next = {"<Tab>", "j"},
-            focus_prev = {"<Tab>", "k"}
+            focus_prev = {"<S-Tab>", "k"}
         }
     })
 
@@ -115,11 +112,18 @@ function M.JiraWindow:new(o)
     --     renderer = o.renderer,
     --     parent = o
     -- })
+    --
     o:push(ProjectPanel:new {
         renderer = o.renderer,
         parent = o,
         project = require("jirac.jira_project_service").search_projects({ query = "SCRUM" }).values[1]
     })
+
+    -- o:push(IssueSubmitPanel:new {
+    --     renderer = o.renderer,
+    --     parent = o,
+    --     project = require("jirac.jira_project_service").search_projects({ query = "SCRUM" }).values[1]
+    -- })
 
     return o
 end
