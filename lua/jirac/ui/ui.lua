@@ -56,7 +56,7 @@ end
 
 function M.JiraWindow:update_nui()
     self.renderer:close()
-    self.renderer:set_size(self:peek().size or { width = 80, height = 30 } )
+    self.renderer:set_size(self:peek().size or { width = 150, height = 45 } )
     self.renderer:render(
         ui_utils.pad_component(
             self:peek():build_nui_panel()
@@ -71,7 +71,6 @@ end
 ---@param mappings Array<MappingAllModes>
 function M.JiraWindow:add_mappings(mappings)
     for _, v in ipairs(mappings) do
-        P(v)
         self.renderer:add_mappings({{
             mode = { "n", "i", "v" },
             key = v.key,
@@ -112,15 +111,15 @@ function M.JiraWindow:new(o)
         }
     })
 
-    o:push(NavigationPanel:new {
-        renderer = o.renderer,
-        parent = o
-    })
-    -- o:push(ProjectPanel:new {
+    -- o:push(NavigationPanel:new {
     --     renderer = o.renderer,
-    --     parent = o,
-    --     project = require("jirac.jira_project_service").search_projects({ query = "SCRUM" }).values[1]
+    --     parent = o
     -- })
+    o:push(ProjectPanel:new {
+        renderer = o.renderer,
+        parent = o,
+        project = require("jirac.jira_project_service").search_projects({ query = "SCRUM" }).values[1]
+    })
 
     return o
 end

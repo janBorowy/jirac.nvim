@@ -123,12 +123,12 @@ function M.ProjectSearchPanel:build_nui_panel()
         nui.gap { flex = 1 },
         nui.columns (
             { flex = 0 },
-            nui.button {
+            nui.paragraph {
                 id = "prev-page-button",
                 flex = 1,
-                label = "<",
+                lines = "<",
                 align = "right",
-                on_press = function () self:_handle_previous_page() end
+                is_focusable = false
             },
             nui.paragraph {
                 flex = 1,
@@ -136,11 +136,11 @@ function M.ProjectSearchPanel:build_nui_panel()
                 is_focusable = false,
                 align = "center"
             },
-            nui.button {
+            nui.paragraph {
                 id = "next-page-button",
                 flex = 1,
-                label = ">",
-                on_press = function () self:_handle_next_page() end
+                lines = ">",
+                is_focusable = false
             }
         )
     )
