@@ -18,13 +18,12 @@ end
 ---@field description string
 
 ---@class GetProjectIssuesParams
----@field maxResults integer
----@field projectKey string
+---@field project_key string
+---@field max_results integer?
 ---@field next_page_token string?
 
----@class GetProjectIssuesResponse
----@field issues Array<Issue>
----@field next_page_token string
+---@class SearchProjectIssuesParams : GetProjectIssuesParams
+---@field search_phrase string
 
 ---@return Array<Issue>
 local function serialize_project_issues(data)
@@ -49,26 +48,66 @@ local function serialize_project_issues(data)
     end, data.issues)
 end
 
----@param params GetProjectIssuesParams
----@return GetProjectIssuesResponse
-function M.get_project_issues(params)
+local function perform_jql_search(params)
     local url = jira_service.get_jira_url("search", "jql")
     local opts = jira_service.get_base_opts()
     opts.query = {
-        jql = "project = " .. params.projectKey,
-        maxResults = params.maxResults,
+        jql = params.jql,
+        maxResults = params.max_results,
         fields = "{id, self, key, description, status, summary,}",
-        next_page_token = params.next_page_token
+        nextPageToken = params.next_page_token
     }
     local response = curl.get(url, opts)
 
     check_for_error(response)
 
     local data = vim.fn.json_decode(response.body)
-    return {
-        issues = serialize_project_issues(data),
-        next_page_token = data.nextPageToken
-    }
+    return serialize_project_issues(data)
+end
+
+local function perform_jql_count(jql)
+    local url = jira_service.get_jira_url("search", "approximate-count")
+    local opts = jira_service.post_base_opts()
+    opts.body = vim.fn.json_encode(jql)
+    local response = curl.post(url, opts)
+
+    check_for_error(response)
+
+    return tonumber(vim.fn.json_decode(response.body).count)
+end
+
+---@param params GetProjectIssuesParams
+---@return Array<Issue>
+function M.get_project_issues(params)
+    local p = vim.fn.copy(params)
+    p.jql = "project = " .. p.project_key
+    return perform_jql_search(p)
+end
+
+---@param params SearchProjectIssuesParams
+---@return Array<Issue>
+function M.search_project_issues(params)
+    local p = vim.fn.copy(params)
+    p.jql = "project = " .. params.project_key ..
+        (params.search_phrase and string.len(params.search_phrase) > 0 and
+        " AND (summary ~ ".. params.search_phrase ..
+        " OR description ~ " .. params.search_phrase .. ")"
+        or "")
+    P(p.jql)
+    return perform_jql_search(p)
+end
+
+---@class IssueCountParams
+---@field project_key string
+---@field search_phrase string
+
+---@param params IssueCountParams
+function M.get_search_project_issues_count(params)
+    return perform_jql_count("project = " .. params.project_key ..
+        (params.search_phrase and
+        " AND (summary ~ ".. params.search_phrase ..
+        " OR description ~ " .. params.search_phrase .. ")"
+        or ""))
 end
 
 ---@class IssueSuggestion

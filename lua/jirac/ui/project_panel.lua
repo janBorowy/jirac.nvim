@@ -18,28 +18,7 @@ function M.ProjectPanel:_handle_create_issue()
 end
 
 function M.ProjectPanel:_get_total_pages_count()
-    return math.ceil(#self.api_response.issues / maxIssueSearchResults)
-end
-
-function M.ProjectPanel:init()
-    self.parent:add_mappings ({
-        {
-            key = "h",
-            handler = function ()
-                self:_handle_previous_page()
-            end
-        },
-        {
-            key = "l",
-            handler = function ()
-                self:_handle_next_page()
-            end
-        }
-    })
-end
-
-function M.ProjectPanel:deinit()
-    self.parent:clear_mappings ({"l", "h"})
+    return math.ceil(#self.api_response/ maxIssueSearchResults)
 end
 
 function M.ProjectPanel:_handle_previous_page()
@@ -59,7 +38,7 @@ function M.ProjectPanel:_handle_next_page()
 end
 
 function M.ProjectPanel:_build_issues_column()
-    if #self.api_response.issues == 0 then
+    if #self.api_response == 0 then
         return nui.paragraph {
             flex = 2,
             lines = "No issues",
@@ -75,7 +54,7 @@ function M.ProjectPanel:_build_issues_column()
     local key_column = {}
     local summary_column = {}
     local status_column = {}
-    for _, k in pairs(self.api_response.issues) do
+    for _, k in pairs(self.api_response) do
         key_column[#key_column + 1] = nui.button {
             label = k.key,
         }
@@ -117,24 +96,26 @@ function M.ProjectPanel:_build_issues_column()
     nui.gap({flex = 1}),
     nui.columns (
     { flex = 0 },
-    nui.paragraph {
+    nui.button {
         id = "prev-page-button",
         flex = 1,
         lines = "<",
         align = "right",
-        is_focusable = false
+        on_press = function() self:_handle_previous_page() end,
+        global_press_key = "h"
     },
-    nui.paragraph {
+    nui.button {
         flex = 1,
         lines = tostring(self.current_page) .. " / " .. self:_get_total_pages_count(),
         is_focusable = false,
         align = "center"
     },
-    nui.paragraph {
+    nui.button {
         id = "next-page-button",
         flex = 1,
         lines = ">",
-        is_focusable = false
+        on_press = function() self:_handle_next_page() end,
+        global_press_key = "l"
     }))
 end
 
@@ -190,7 +171,7 @@ function M.ProjectPanel:new(o)
     setmetatable(o, self)
     self.api_response = issue_service.get_project_issues {
         maxResults = maxIssueSearchResults,
-        projectKey = o.project.key
+        project_key = o.project.key
     }
     return o
 end

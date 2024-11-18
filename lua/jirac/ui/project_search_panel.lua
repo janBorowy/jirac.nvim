@@ -52,27 +52,6 @@ function M.ProjectSearchPanel:_get_total_pages_count()
     return math.ceil(self.apiResponse.total / maxProjectSearchResults)
 end
 
-function M.ProjectSearchPanel:init()
-    self.parent:add_mappings ({
-        {
-            key = "h",
-            handler = function ()
-                self:_handle_previous_page()
-            end
-        },
-        {
-            key = "l",
-            handler = function ()
-                self:_handle_next_page()
-            end
-        }
-    })
-end
-
-function M.ProjectSearchPanel:deinit()
-    self.parent:clear_mappings ({"l", "h"})
-end
-
 function M.ProjectSearchPanel:_handle_previous_page()
     if self.current_page ~= 1 then
         self.current_page = self.current_page - 1
@@ -123,12 +102,13 @@ function M.ProjectSearchPanel:build_nui_panel()
         nui.gap { flex = 1 },
         nui.columns (
             { flex = 0 },
-            nui.paragraph {
+            nui.button {
                 id = "prev-page-button",
                 flex = 1,
                 lines = "<",
                 align = "right",
-                is_focusable = false
+                on_press = function() self:_handle_previous_page() end,
+                global_press_key = "h"
             },
             nui.paragraph {
                 flex = 1,
@@ -136,11 +116,12 @@ function M.ProjectSearchPanel:build_nui_panel()
                 is_focusable = false,
                 align = "center"
             },
-            nui.paragraph {
+            nui.button {
                 id = "next-page-button",
                 flex = 1,
                 lines = ">",
-                is_focusable = false
+                on_press = function() self:_handle_next_page() end,
+                global_press_key = "l"
             }
         )
     )

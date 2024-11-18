@@ -2,6 +2,7 @@ local nui = require("nui-components")
 local issue_service = require("jirac.jira_issue_service")
 local user_service = require("jirac.jira_user_service")
 local ErrorPanel = require("jirac.ui.error_panel").ErrorPanel
+local IssueSearchPanel = require("jirac.ui.issue_search_panel").IssueSearchPanel
 
 local M = {}
 
@@ -32,7 +33,7 @@ end
 
 function M.IssueSubmitPanel:_fetch_issue_type_data()
     return vim.tbl_map(function (t)
-        return nui.option(t.name, t)
+        return nui.option(t.name .. " - " .. t.description, t)
     end, issue_service.get_issue_types())
 end
 
@@ -42,6 +43,53 @@ function M.IssueSubmitPanel:_handle_project_submit_error(obj)
         parent = self.parent
     })
     self.parent:push(panel)
+end
+
+function M.IssueSubmitPanel:_handle_pick_subtask()
+    self.parent:push(IssueSearchPanel:new {
+        renderer = self.renderer,
+        parent = self.parent,
+        project = self.project,
+        search_phrase = "",
+        callback = function (issue)
+            self.form_data.subtask = issue
+        end
+    })
+end
+
+function M.IssueSubmitPanel:_get_subtask_selection_component()
+    if not self.form_data.subtask then
+        return nui.rows (
+        { flex = 1 },
+        nui.gap { flex = 1 },
+        nui.button {
+            flex = 1,
+            label = "Select subtask",
+            on_press = function ()
+                self:_handle_pick_subtask()
+            end,
+            align = "center"
+        },
+        nui.gap { flex = 1 }
+        )
+    end
+
+    return nui.rows (
+        { flex = 1 },
+        nui.gap { flex = 1 },
+        nui.paragraph {
+            lines = "Subtask: " .. self.form_data.subtask.key
+        },
+        nui.button {
+            flex = 1,
+            label = "Change subtask",
+            on_press = function ()
+                self:_handle_pick_subtask()
+            end,
+            align = "center"
+        },
+        nui.gap { flex = 1 }
+    )
 end
 
 function M.IssueSubmitPanel:_handle_form_submit()
@@ -91,6 +139,20 @@ function M.IssueSubmitPanel:build_nui_panel()
             nui.select {
                 flex = 1,
                 size = 5,
+                border_label = "Assignee",
+                selected = { id = self.form_data.assignee_id },
+                data = self.assignee_selection_data,
+                multiselect = false,
+                on_select = function (node)
+                    self._assignee_signal.selected = node
+                    self.form_data.assignee_id = node.id
+                end
+            },
+            self:_get_subtask_selection_component()
+        ),
+        nui.select {
+                flex = 1,
+                size = 5,
                 border_label = "Issue Type",
                 selected = { id = self.form_data.issue_type_id },
                 data = self.issue_type_data,
@@ -99,20 +161,7 @@ function M.IssueSubmitPanel:build_nui_panel()
                     self._issue_type_signal.selected = node
                     self.form_data.issue_type_id = node.id
                 end
-            },
-            nui.select {
-                flex = 1,
-                size = 5,
-                border_label = "Assignee",
-                selected = { id = self.form_data.assignee_selection_data },
-                data = self.assignee_selection_data,
-                multiselect = false,
-                on_select = function (node)
-                    self._assignee_signal.selected = node
-                    self.form_data.assignee_id = node.id
-                end
-            }
-        ),
+        },
         nui.text_input {
             id = "description-field",
             flex = 1,
@@ -143,7 +192,8 @@ function M.IssueSubmitPanel:new(o)
         summary = "",
         issue_type_id = "",
         assignee_id = "",
-        description = ""
+        description = "",
+        subtask = nil
     }
     return o
 end
