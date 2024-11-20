@@ -26,6 +26,9 @@ end
 function M.IssueSearchPanel:build_search_result_rows()
     local rows = {}
     for i, issue in ipairs(self.issues) do
+        if i > 10 then
+            break
+        end
         rows[#rows + 1] = nui.button {
             lines = vim.tbl_map( function (txt)
                 return nui.line(nui.text(txt))
@@ -33,8 +36,8 @@ function M.IssueSearchPanel:build_search_result_rows()
             autofocus = i == 1,
             align = "center",
             on_press = function ()
-                self.parent:pop()
                 self.callback(issue)
+                self.parent:pop()
             end
         }
     end

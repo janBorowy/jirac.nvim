@@ -102,7 +102,7 @@ function M.ProjectPanel:_build_issues_column()
         lines = "<",
         align = "right",
         on_press = function() self:_handle_previous_page() end,
-        global_press_key = "h"
+        -- global_press_key = "h"
     },
     nui.button {
         flex = 1,
@@ -115,7 +115,7 @@ function M.ProjectPanel:_build_issues_column()
         flex = 1,
         lines = ">",
         on_press = function() self:_handle_next_page() end,
-        global_press_key = "l"
+        -- global_press_key = "l"
     }))
 end
 

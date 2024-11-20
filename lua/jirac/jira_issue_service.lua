@@ -189,6 +189,7 @@ end
 ---@field description string?
 ---@field assignee_id string?
 ---@field issue_type_id string?
+---@field parent_key string?
 
 ---@param dto IssueCreateDto
 local function dto_to_fields(dto)
@@ -214,6 +215,9 @@ local function dto_to_fields(dto)
             },
             issuetype = {
                 id = dto.issue_type_id
+            },
+            parent = dto.parent_key and {
+                key = dto.parent_key
             }
         }
     }

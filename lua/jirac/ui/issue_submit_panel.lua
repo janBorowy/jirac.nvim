@@ -7,7 +7,8 @@ local IssueSearchPanel = require("jirac.ui.issue_search_panel").IssueSearchPanel
 local M = {}
 
 M.IssueSubmitPanel = {
-    size = { width = 90, height = 30 }
+    size = { width = 90, height = 30 },
+    project = nil
 }
 
 ---@param id string
@@ -45,20 +46,25 @@ function M.IssueSubmitPanel:_handle_project_submit_error(obj)
     self.parent:push(panel)
 end
 
-function M.IssueSubmitPanel:_handle_pick_subtask()
+function M.IssueSubmitPanel:_handle_pick_parent_issue()
     self.parent:push(IssueSearchPanel:new {
         renderer = self.renderer,
         parent = self.parent,
         project = self.project,
         search_phrase = "",
         callback = function (issue)
-            self.form_data.subtask = issue
+            self.form_data.parent_issue = issue
         end
     })
 end
 
-function M.IssueSubmitPanel:_get_subtask_selection_component()
-    if not self.form_data.subtask then
+function M.IssueSubmitPanel:_handle_clear_parent_issue()
+    self.form_data.parent_issue = nil
+    self.parent:update_nui()
+end
+
+function M.IssueSubmitPanel:_get_parent_issue_selection_component()
+    if not self.form_data.parent_issue then
         return nui.rows (
         { flex = 1 },
         nui.gap { flex = 1 },
@@ -66,11 +72,12 @@ function M.IssueSubmitPanel:_get_subtask_selection_component()
             flex = 1,
             label = "Select subtask",
             on_press = function ()
-                self:_handle_pick_subtask()
+                self:_handle_pick_parent_issue()
             end,
             align = "center"
         },
-        nui.gap { flex = 1 }
+        nui.gap { flex = 1 },
+        nui.gap(1)
         )
     end
 
@@ -78,13 +85,24 @@ function M.IssueSubmitPanel:_get_subtask_selection_component()
         { flex = 1 },
         nui.gap { flex = 1 },
         nui.paragraph {
-            lines = "Subtask: " .. self.form_data.subtask.key
+            lines = {nui.line("Parent task: " .. self.form_data.parent_issue.key),
+                     nui.line(self.form_data.parent_issue.summary)},
+            align = "center",
+            is_focusable = false
         },
         nui.button {
             flex = 1,
-            label = "Change subtask",
+            label = "Change parent issue",
             on_press = function ()
-                self:_handle_pick_subtask()
+                self:_handle_pick_parent_issue()
+            end,
+            align = "center"
+        },
+        nui.button {
+            flex = 1,
+            label = "Clear parent issue",
+            on_press = function ()
+                self:_handle_clear_parent_issue()
             end,
             align = "center"
         },
@@ -101,6 +119,10 @@ function M.IssueSubmitPanel:_handle_form_submit()
         assignee_id = self.form_data.assignee_id,
         issue_type_id = self.form_data.issue_type_id,
     }
+
+    if self.form_data.parent_issue then
+        dto.parent_key = self.form_data.parent_issue.key
+    end
 
     local success, obj = pcall(issue_service.create_issue, dto)
     if success then
@@ -132,6 +154,7 @@ function M.IssueSubmitPanel:build_nui_panel()
             border_label = "Summary",
             max_lines = 2,
             autofocus = true,
+            value = self.form_data.summary,
             on_change = function (v) self.form_data.summary = v end
         },
         nui.columns(
@@ -148,7 +171,7 @@ function M.IssueSubmitPanel:build_nui_panel()
                     self.form_data.assignee_id = node.id
                 end
             },
-            self:_get_subtask_selection_component()
+            self:_get_parent_issue_selection_component()
         ),
         nui.select {
                 flex = 1,
@@ -185,15 +208,14 @@ function M.IssueSubmitPanel:new(o)
     o = o or {}
     self.__index = self
     setmetatable(o, self)
-    self.project = o.project
-    self.assignee_selection_data = self:_fetch_assignee_selection_data()
-    self.issue_type_data = self:_fetch_issue_type_data()
-    self.form_data = {
+    o.assignee_selection_data = o.assignee_selection_data or o:_fetch_assignee_selection_data()
+    o.issue_type_data = o.issue_type_data or o:_fetch_issue_type_data()
+    o.form_data = o.form_data or {
         summary = "",
         issue_type_id = "",
         assignee_id = "",
         description = "",
-        subtask = nil
+        parent_issue = nil
     }
     return o
 end
