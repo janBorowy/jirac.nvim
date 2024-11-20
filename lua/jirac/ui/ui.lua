@@ -21,14 +21,6 @@ local M = {}
 
 M.JiraWindow = { panels = {} }
 
-function M.JiraWindow:show()
-    if not self.is_shown then
-        self.is_shown = true
-        self.renderer:set_size(self:peek().size)
-        self.renderer:render(self:peek():build_nui_panel())
-    end
-end
-
 ---@return Panel
 function M.JiraWindow:peek()
     return self.panels[#self.panels]
@@ -54,7 +46,7 @@ end
 
 function M.JiraWindow:update_nui()
     self.renderer:close()
-    self.renderer:set_size(self:peek().size or { width = 150, height = 45 } )
+    self.renderer:set_size(self:peek().size or { width = 150, height = 35 } )
     if self:peek() and self:peek().init then self:peek():init() end
     self.renderer:render(
         ui_utils.pad_component(
@@ -112,7 +104,7 @@ function M.JiraWindow:new(o)
     --     renderer = o.renderer,
     --     parent = o
     -- })
-    --
+
     o:push(ProjectPanel:new {
         renderer = o.renderer,
         parent = o,
@@ -131,6 +123,6 @@ function M.JiraWindow:new(o)
 end
 
 M.JiraWindowInstance = M.JiraWindow:new()
-M.JiraWindowInstance:show()
+M.JiraWindowInstance:update_nui()
 
 return M

@@ -17,44 +17,29 @@ function M.ProjectPanel:_handle_create_issue()
     })
 end
 
-function M.ProjectPanel:_get_total_pages_count()
-    return math.ceil(#self.api_response/ maxIssueSearchResults)
+---@return Array<Issue>
+function M.ProjectPanel:_fetch_issues()
+    return issue_service.search_project_issues {
+        maxResults = maxIssueSearchResults,
+        project_key = self.project.key,
+        search_phrase = self.search_phrase
+    }
 end
 
-function M.ProjectPanel:_handle_previous_page()
-    if self.current_page ~= 1 then
-        self.current_page = self.current_page - 1
-        local v = self.renderer:get_component_by_id("search-phrase-field").value
-        -- M.put_project_search_panel(self, v)
-    end
-end
-
-function M.ProjectPanel:_handle_next_page()
-    if self.current_page < self:_get_total_pages_count() then
-        self.current_page = self.current_page + 1
-        local v = self.renderer:get_component_by_id("search-phrase-field").value
-        -- M.put_project_search_panel(self, v)
-    end
+function M.ProjectPanel:_handle_refresh_issues()
+    self.search_phrase = self.renderer:get_component_by_id("search-phrase"):get_current_value()
+    self.issues = self:_fetch_issues()
+    self.parent:update_nui()
 end
 
 function M.ProjectPanel:_build_issues_column()
-    if #self.api_response == 0 then
-        return nui.paragraph {
-            flex = 2,
-            lines = "No issues",
-            max_lines = 1,
-            padding = {
-                bottom = 1
-            },
-            align = "center",
-            autofocus = true
-        }
-    end
-
     local key_column = {}
     local summary_column = {}
     local status_column = {}
-    for _, k in pairs(self.api_response) do
+    for i, k in ipairs(self.issues) do
+        if i > maxIssueSearchResults then
+            break
+        end
         key_column[#key_column + 1] = nui.button {
             label = k.key,
         }
@@ -78,45 +63,45 @@ function M.ProjectPanel:_build_issues_column()
         },
         align = "center"
     },
-    nui.button {
-        label = "Create issue",
-        padding = {
-            bottom = 1,
-        },
-        on_press = function () self:_handle_create_issue() end,
-        autofocus = true
-    },
     nui.columns(
-    { flex = 0 },
-    nui.rows(unpack(key_column)),
-    nui.rows(unpack(summary_column)),
-    nui.rows(unpack(status_column)),
-    nui.gap(1)
+        { flex = 0 },
+        nui.text_input {
+            id = "search-phrase",
+            flex = 1,
+            border_label = "Search Phrase",
+            placeholder = "Enter search phrase...",
+            value = self.search_phrase,
+            autofocus = true,
+            max_lines = 1
+        },
+        nui.button {
+            label = "Search",
+            align = "center",
+            on_press = function () self:_handle_refresh_issues() end,
+            padding = { top = 1, left = 2, right = 4 },
+        }
     ),
-    nui.gap({flex = 1}),
-    nui.columns (
-    { flex = 0 },
-    nui.button {
-        id = "prev-page-button",
-        flex = 1,
-        lines = "<",
-        align = "right",
-        on_press = function() self:_handle_previous_page() end,
-        -- global_press_key = "h"
-    },
-    nui.button {
-        flex = 1,
-        lines = tostring(self.current_page) .. " / " .. self:_get_total_pages_count(),
-        is_focusable = false,
-        align = "center"
-    },
-    nui.button {
-        id = "next-page-button",
-        flex = 1,
-        lines = ">",
-        on_press = function() self:_handle_next_page() end,
-        -- global_press_key = "l"
-    }))
+    nui.columns(
+        { flex = 0 },
+        nui.button {
+            label = "Create issue",
+            padding = { right = 4, bottom = 1 },
+            on_press = function () self:_handle_create_issue() end,
+        },
+        nui.button {
+            label = "Refresh issues",
+            on_press = function () self:_handle_refresh_issues() end,
+        },
+        nui.gap { flex = 1 }
+    ),
+    #key_column > 0 and nui.columns(
+        { flex = 0 },
+        nui.rows(unpack(key_column)),
+        nui.rows(unpack(summary_column)),
+        nui.rows(unpack(status_column)),
+        nui.gap(1)
+    ) or nui.gap(1),
+    nui.gap({flex = 1}))
 end
 
 function M.ProjectPanel:_create_field(name, value)
@@ -157,22 +142,21 @@ function M.ProjectPanel:build_nui_panel()
     nui.columns( {flex = 1},
     self:_build_issues_column(),
     self:_build_details_column()
-    )
-    )
+    ))
 end
 
 ---@class ProjectPanel : Panel
 ---@field project Project
+---@field issues Array<Issue>?
+---@field search_phrase string?
 
 ---@param o ProjectPanel
 function M.ProjectPanel:new(o)
     o = o or {}
     self.__index = self
     setmetatable(o, self)
-    self.api_response = issue_service.get_project_issues {
-        maxResults = maxIssueSearchResults,
-        project_key = o.project.key
-    }
+    o.search_phrase = o.search_phrase or ""
+    o.issues = o:_fetch_issues()
     return o
 end
 

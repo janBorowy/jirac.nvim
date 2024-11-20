@@ -93,7 +93,6 @@ function M.search_project_issues(params)
         " AND (summary ~ ".. params.search_phrase ..
         " OR description ~ " .. params.search_phrase .. ")"
         or "")
-    P(p.jql)
     return perform_jql_search(p)
 end
 
