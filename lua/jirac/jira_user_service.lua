@@ -10,7 +10,7 @@ end
 
 ---@class Array<T>: { [integer]: T }
 
----@class UserDto
+---@class User
 ---@field accountId string
 ---@field accountType string
 ---@field active boolean
@@ -45,7 +45,7 @@ end
 ---@field maxResults integer
 
 ---@param query GetAllUsersQuery?
----@return Array<UserDto>
+---@return Array<User>
 function M.get_all_users(query)
     local opts = jira_service.get_base_opts()
     opts.query = query or {}
@@ -63,7 +63,7 @@ end
 ---@field maxResults integer | nil
 
 ---@param query FindProjectAssignableQuery
----@return Array<UserDto>
+---@return Array<User>
 function M.find_users_assignable_to_project(query)
     local opts = jira_service.get_base_opts()
     opts.query = query or {}
@@ -79,7 +79,7 @@ end
 ---@field project_id_or_key string
 
 ---@param query FindUsersAssignableToIssueQuery
----@return Array<UserDto>
+---@return Array<User>
 function M.find_users_assignable_to_issue(query)
     local opts = jira_service.get_base_opts()
     opts.query = {

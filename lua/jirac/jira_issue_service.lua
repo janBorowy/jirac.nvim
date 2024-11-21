@@ -14,8 +14,13 @@ end
 ---@field key string
 ---@field self string
 ---@field summary string
----@field status_name string
----@field description string
+---@field status Status?
+---@field description string?
+
+---@class Priority
+---@field id string
+---@field name string
+---@field self string
 
 ---@class GetProjectIssuesParams
 ---@field project_key string
@@ -25,26 +30,31 @@ end
 ---@class SearchProjectIssuesParams : GetProjectIssuesParams
 ---@field search_phrase string
 
+local function serialize_project_issue(data)
+    return {
+        id = data.id,
+        key = data.key,
+        self = data.self,
+        summary = data.fields and data.fields.summary,
+        status = data.fields and
+            data.fields.status,
+        description = data.fields
+            and data.fields.description ~= nil
+            and #data.fields.description.content ~= 0
+            and data.fields.description.content[1]
+            and data.fields.description.content[1].content
+            and #data.fields.description.content[1].content ~= 0
+            and data.fields.description.content[1].content[1].text
+            or nil,
+        priority = data.fields
+            and data.fields.priority
+    }
+end
+
 ---@return Array<Issue>
 local function serialize_project_issues(data)
     return vim.tbl_map(function (i)
-        return {
-            id = i.id,
-            key = i.key,
-            self = i.self,
-            summary = i.fields and i.fields.summary,
-            status_name = i.fields and
-                i.fields.status and
-                i.fields.status.statusCategory.name,
-            description = i.fields
-                and i.fields.description ~= vim.NIL
-                and #i.fields.description.content ~= 0
-                and i.fields.description.content[1]
-                and i.fields.description.content[1].content
-                and #i.fields.description.content[1].content ~= 0
-                and i.fields.description.content[1].content[1].text
-                or nil
-        }
+        serialize_project_issue(i)
     end, data.issues)
 end
 
@@ -243,6 +253,50 @@ function M.create_issue(dto)
         key = data.key,
         url = data.self
     }
+end
+
+---@class IssueDetailed : Issue
+---@field parent ParentIssue?
+---@field assignee User?
+---@field reporter User?
+---@field priority Priority?
+
+---@class ParentIssue
+---@field key string
+---@field id string
+---@field status Status
+---@field type IssueType
+---@field priority Priority
+
+local function serialize_project_issue_detailed(data)
+    local serialized = serialize_project_issue(data)
+    return vim.tbl_extend('error', serialized,
+        {
+            parent = data.fields and
+                data.fields.parent and
+                serialize_project_issue(data.fields.parent),
+            assignee = data.fields and
+                data.fields.assignee,
+            reporter = data.fields and
+                data.fields.reporter
+        }
+    )
+end
+
+---@param issue_id_or_key string
+---@return IssueDetailed
+function M.get_issue_detailed(issue_id_or_key)
+    local url = get_url(issue_id_or_key)
+    local opts = jira_service.get_base_opts()
+    opts.query = {
+        fields = "{id, self, key, description, status, summary, \
+        parent, assignee, reporter, priority}"
+    }
+    local response = curl.get(url, opts)
+
+    check_for_error(response)
+
+    return serialize_project_issue_detailed(vim.fn.json_decode(response.body))
 end
 
 return M
