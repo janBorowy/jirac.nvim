@@ -4,6 +4,8 @@ local ProjectSubmitPanel = require("jirac.ui.project_submit_panel").ProjectSubmi
 local ProjectSearchPanel = require("jirac.ui.project_search_panel").ProjectSearchPanel
 local project_service = require("jirac.jira_project_service")
 local put_project_search_panel = require("jirac.ui.project_search_panel").put_project_search_panel
+local PromptFactory = require("jirac.ui.object_search_prompts")
+local ProjectPanel = require("jirac.ui.project_panel").ProjectPanel
 
 local M = {}
 
@@ -12,15 +14,16 @@ M.NavigationPanel = {
 }
 
 function M.NavigationPanel:handle_search_project()
-    self.parent:push(PromptPanel:new {
-        renderer = self.renderer,
+    self.parent:push(PromptFactory.create_project {
         parent = self.parent,
-        title = "Search project",
-        form_id = "search-form-id",
-        border_label = "Search phrase",
-        placeholder = "Enter search phrase...",
-        button_label = "search",
-        on_submit = function (v) put_project_search_panel(self, v) end
+        renderer = self.renderer,
+        callback = function (v)
+            self.parent:push(ProjectPanel:new {
+                parent = self.parent,
+                renderer = self.renderer,
+                project = v
+            })
+        end
     })
 end
 

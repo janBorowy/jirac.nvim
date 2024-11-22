@@ -6,8 +6,6 @@ local check_for_error = require("jirac.error").check_for_error
 
 local M = {}
 
----@class Array<T>: { [integer]: T }
-
 ---@class Project
 ---@field url string
 ---@field id number

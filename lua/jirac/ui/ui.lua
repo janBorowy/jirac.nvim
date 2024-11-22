@@ -1,8 +1,6 @@
 local nui = require("nui-components")
+
 local NavigationPanel = require("jirac.ui.navigation_panel").NavigationPanel
-local ProjectPanel = require("jirac.ui.project_panel").ProjectPanel
-local IssuePanel = require("jirac.ui.issue_panel").IssuePanel
-local TextInputPrompt = require("jirac.ui.text_input_prompt").TextInputPrompt
 local ui_utils     = require("jirac.ui.ui_utils")
 
 local M = {}
@@ -18,6 +16,8 @@ local M = {}
 ---@field deinit function?
 ---@field parent any
 ---@field renderer any
+---@field new function
+---@field __index any
 
 M.JiraWindow = { panels = {} }
 
@@ -100,10 +100,10 @@ function M.JiraWindow:new(o)
         }
     })
 
-    -- o:push(NavigationPanel:new {
-    --     renderer = o.renderer,
-    --     parent = o
-    -- })
+    o:push(NavigationPanel:new {
+        renderer = o.renderer,
+        parent = o
+    })
 
     -- o:push(ProjectPanel:new {
     --     renderer = o.renderer,
@@ -113,23 +113,9 @@ function M.JiraWindow:new(o)
     --
     -- o:push(IssuePanel:new {
     --     renderer = o.renderer,
-    --     parent = o.parent,
+    --     parent = o,
     --     issue_id = "SCRUM-1"
     -- })
-    --
-
-    o:push(TextInputPrompt:new {
-        renderer = o.renderer,
-        parent = o,
-        border_label = "Description",
-        callback = function (v) P(v); o:pop() end
-    })
-    o:push(TextInputPrompt:new {
-        renderer = o.renderer,
-        parent = o,
-        border_label = "Description",
-        callback = function (v) P(v); o:pop() end
-    })
 
     return o
 end

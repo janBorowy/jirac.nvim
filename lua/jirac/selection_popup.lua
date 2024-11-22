@@ -5,8 +5,6 @@ M.SelectionPopup = {
     opts = {}
 }
 
----@class Array<T>: { [integer]: T }
-
 ---@class SelectionPopupParams
 ---@field title string
 ---@field options Array<string>

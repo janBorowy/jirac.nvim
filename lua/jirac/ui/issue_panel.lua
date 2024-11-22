@@ -1,9 +1,38 @@
 local nui = require("nui-components")
 local issue_service = require("jirac.jira_issue_service")
+local TextInputPrompt = require("jirac.ui.text_input_prompt").TextInputPrompt
+local ErrorPanel = require("jirac.ui.error_panel").ErrorPanel
 
 local M = {}
 
 M.IssuePanel = {}
+
+function M.IssuePanel:_handle_edit_error(obj)
+    self.parent:push(ErrorPanel:new {
+        errors = obj.errors,
+        parent = self.parent
+    })
+end
+
+function M.IssuePanel:_handle_edit_description()
+    self.parent:push(TextInputPrompt:new {
+        renderer = self.renderer,
+        parent = self.parent,
+        border_label = "Description",
+        initial_value = self.issue.description,
+        callback = function (new_description)
+            self.parent:pop()
+            -- try to update issue
+            local success, obj = pcall(issue_service.update_description, self.issue.key, new_description)
+            if success then
+                self.issue.description = obj.description
+                self.parent:update_nui()
+            else
+                self:_handle_edit_error(obj)
+            end
+        end
+    })
+end
 
 function M.IssuePanel:_build_left_column()
     return nui.rows(
@@ -18,13 +47,14 @@ function M.IssuePanel:_build_left_column()
                 top = 1
             }
         },
-        nui.paragraph {
+        nui.button {
             lines = self.issue.description,
             padding = {
                 top = 1,
                 left = 2
             },
-            autofocus = true
+            autofocus = true,
+            on_press = function () self:_handle_edit_description() end
         },
         nui.gap { flex = 1 }
     )

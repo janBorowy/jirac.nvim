@@ -8,8 +8,6 @@ local function get_url(action)
     return jira_service.get_jira_url("user", action)
 end
 
----@class Array<T>: { [integer]: T }
-
 ---@class User
 ---@field accountId string
 ---@field accountType string

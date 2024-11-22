@@ -299,4 +299,37 @@ function M.get_issue_detailed(issue_id_or_key)
     return serialize_project_issue_detailed(vim.fn.json_decode(response.body))
 end
 
+local function edit_issue(issue_id_or_key, fields_obj)
+    local url = get_url(issue_id_or_key)
+    local opts = jira_service.post_base_opts()
+    opts.query = { returnIssue = 'true' }
+    opts.body = vim.fn.json_encode( { fields = fields_obj } )
+    local response = curl.put(url, opts)
+
+    check_for_error(response)
+
+    return serialize_project_issue(vim.fn.json_decode(response.body))
+end
+
+---@return Issue
+function M.update_description(issue_id_or_key, new_description)
+    return edit_issue(issue_id_or_key, {
+        description = {
+                type = "doc",
+                version = 1,
+                content = {
+                    {
+                        type = "paragraph",
+                        content = {
+                            {
+                                type = "text",
+                                text = new_description
+                            }
+                        }
+                    }
+                }
+        }
+    })
+end
+
 return M

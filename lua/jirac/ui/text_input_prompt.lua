@@ -4,7 +4,8 @@ local M = {}
 
 M.TextInputPrompt = {
     size = {width = 60, height = 15},
-    button_label = "submit"
+    button_label = "submit",
+    initial_value = ""
 }
 
 function M.TextInputPrompt:build_nui_panel()
@@ -13,7 +14,8 @@ function M.TextInputPrompt:build_nui_panel()
             id = "input-field",
             flex = 1,
             border_label = self.border_label,
-            autofocus = true
+            autofocus = true,
+            value = self.initial_value
         },
         nui.button {
             label = self.button_label,
@@ -30,6 +32,7 @@ end
 ---@class TextInputPrompt : Panel
 ---@field border_label string
 ---@field button_label string?
+---@field initial_value string
 ---@field callback function
 
 ---@param o TextInputPrompt
