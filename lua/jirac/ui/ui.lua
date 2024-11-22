@@ -2,6 +2,7 @@ local nui = require("nui-components")
 local NavigationPanel = require("jirac.ui.navigation_panel").NavigationPanel
 local ProjectPanel = require("jirac.ui.project_panel").ProjectPanel
 local IssuePanel = require("jirac.ui.issue_panel").IssuePanel
+local TextInputPrompt = require("jirac.ui.text_input_prompt").TextInputPrompt
 local ui_utils     = require("jirac.ui.ui_utils")
 
 local M = {}
@@ -110,10 +111,24 @@ function M.JiraWindow:new(o)
     --     project = require("jirac.jira_project_service").search_projects({ query = "SCRUM" }).values[1]
     -- })
     --
-    o:push(IssuePanel:new {
+    -- o:push(IssuePanel:new {
+    --     renderer = o.renderer,
+    --     parent = o.parent,
+    --     issue_id = "SCRUM-1"
+    -- })
+    --
+
+    o:push(TextInputPrompt:new {
         renderer = o.renderer,
-        parent = o.parent,
-        issue_id = "SCRUM-1"
+        parent = o,
+        border_label = "Description",
+        callback = function (v) P(v); o:pop() end
+    })
+    o:push(TextInputPrompt:new {
+        renderer = o.renderer,
+        parent = o,
+        border_label = "Description",
+        callback = function (v) P(v); o:pop() end
     })
 
     return o
