@@ -1,6 +1,7 @@
 local nui = require("nui-components")
 local issue_service = require("jirac.jira_issue_service")
 local TextInputPrompt = require("jirac.ui.text_input_prompt").TextInputPrompt
+local PromptFactory = require("jirac.ui.object_search_prompts")
 local ErrorPanel = require("jirac.ui.error_panel").ErrorPanel
 
 local M = {}
@@ -14,6 +15,17 @@ function M.IssuePanel:_handle_edit_error(obj)
     })
 end
 
+function M.IssuePanel:_handle_edit_assignee()
+    self.parent:push(PromptFactory.create_assignee {
+        renderer = self.renderer,
+        parent = self.parent,
+        header = "Pick assignee",
+        callback = function (v)
+            self.parent:pop()
+        end
+    })
+end
+
 function M.IssuePanel:_handle_edit_description()
     self.parent:push(TextInputPrompt:new {
         renderer = self.renderer,
@@ -21,11 +33,13 @@ function M.IssuePanel:_handle_edit_description()
         border_label = "Description",
         initial_value = self.issue.description,
         callback = function (new_description)
-            self.parent:pop()
-            -- try to update issue
+            if self.issue.description == new_description then
+                return
+            end
             local success, obj = pcall(issue_service.update_description, self.issue.key, new_description)
             if success then
                 self.issue.description = obj.description
+                self.parent:pop()
                 self.parent:update_nui()
             else
                 self:_handle_edit_error(obj)
@@ -61,28 +75,42 @@ function M.IssuePanel:_build_left_column()
 end
 
 function M.IssuePanel:_build_right_column()
-    local fields = { self._build_editable_field {
-                label = "Status",
-                value = self.issue.status.name
-            },
-            self._build_editable_field {
-                label = "Assignee",
-                value = self.issue.assignee.displayName
-            },
-            self._build_editable_field {
-                label = "Parent",
-                value = self.issue.parent.key
-            },
-            self._build_editable_field {
-                label = "Reporter",
-                value = self.issue.reporter.displayName
-            } }
-    if self.issue.priority then
-        fields[#fields + 1] = self._build_editable_field {
-            label = "Priority",
-            value = self.issue.priority.name
-        }
+    local fields = {}
+    local function add_lazy(object, component_fact)
+        if object and object ~= vim.NIL then
+            fields[#fields + 1] = component_fact()
+        end
     end
+    add_lazy(self.issue.status,
+    function() return self._build_editable_field {
+        label = "Status",
+        value = self.issue.status.name,
+        press_callback = function () end
+    } end)
+    add_lazy(self.issue.assignee,
+    function() return self._build_editable_field {
+        label = "Assignee",
+        value = self.issue.assignee.displayName,
+        press_callback = function () self:_handle_edit_assignee() end
+    } end)
+    add_lazy(self.issue.parent,
+    function () return self._build_editable_field {
+        label = "Parent",
+        value = self.issue.parent.key,
+        press_callback = function () end
+    } end)
+    add_lazy(self.issue.reporter,
+    function () return self._build_editable_field {
+        label = "Reporter",
+        value = self.issue.reporter.displayName,
+        press_callback = function () end
+    } end)
+    add_lazy(self.issue.priority,
+    function () self._build_editable_field {
+        label = "Priority",
+        value = self.issue.priority.name,
+        press_callback = function () end
+    } end)
 
     fields[#fields + 1] = nui.gap { flex = 1 }
     return nui.rows(
@@ -101,6 +129,7 @@ end
 ---@field label string
 ---@field value string
 ---@field rendererd boolean?
+---@field press_callback function
 
 ---@param o EditableFieldParams
 function M.IssuePanel._build_editable_field(o)
@@ -113,12 +142,13 @@ function M.IssuePanel._build_editable_field(o)
             },
             is_focusable = false
         },
-        nui.paragraph {
+        nui.button {
             lines = o.value,
             padding = {
                 left = 3,
                 bottom = 1
-            }
+            },
+            on_press = o.press_callback
         })
 end
 

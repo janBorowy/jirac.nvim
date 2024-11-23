@@ -52,6 +52,20 @@ function M.get_all_users(query)
     return vim.fn.json_decode(response.body)
 end
 
+---@class SearchUsersQuery
+---@field maxResults integer
+---@field query string
+
+---@param query SearchUsersQuery
+---@return Array<User>
+function M.search_users(query)
+    local opts = jira_service.get_base_opts()
+    opts.query = query or {}
+    local response = curl.get(jira_service.get_jira_url("user", "search"), opts)
+    check_for_error(response)
+    return vim.fn.json_decode(response.body)
+end
+
 ---@class FindProjectAssignableQuery
 ---@field projectKeys string
 ---@field query string | nil
