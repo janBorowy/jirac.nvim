@@ -27,7 +27,7 @@ local function get_url(action)
 end
 
 ---@return Project
-local function transform_project(body)
+function M.transform_project(body)
     return {
         url = body.self,
         id = body.id,
@@ -40,7 +40,7 @@ end
 ---@return SearchProjectsDto
 local function serialize_project_response(body)
     return {
-        values = vim.tbl_map(transform_project, body.values),
+        values = vim.tbl_map(M.transform_project, body.values),
         maxResults = body.maxResults,
         total = body.total,
         isLast = body.isLast
@@ -174,7 +174,7 @@ function M.update_project(projectIdOrKey, dto)
     opts.body = vim.fn.json_encode(dto)
     local response = curl.put(get_url(projectIdOrKey), opts)
     check_for_error(response)
-    return transform_project(response.body)
+    return M.transform_project(response.body)
 end
 
 return M

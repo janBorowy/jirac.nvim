@@ -27,7 +27,7 @@ function M.create_project(params)
 end
 
 ---@param params SearchPromptParams
-function M.create_assignee(params)
+function M.create_user(params)
     return ObjectSearchPrompt:new {
             renderer = params.renderer,
             parent = params.parent,
@@ -39,6 +39,28 @@ function M.create_assignee(params)
                 return require("jirac.jira_user_service").search_users {
                     maxResults = 10,
                     query = query
+                }
+            end
+    }
+end
+
+---@class IssueSearchPromptParams : SearchPromptParams
+---@field project_key string
+
+---@param params IssueSearchPromptParams
+function M.create_issue(params)
+    return ObjectSearchPrompt:new {
+            renderer = params.renderer,
+            parent = params.parent,
+            header = params.header or "Search issue",
+            label_factory = function (v) return v.key .. v.summary end,
+            initial_query = params.initial_query or "",
+            callback = params.callback,
+            search_callback = function (query)
+                return require("jirac.jira_issue_service").search_project_issues {
+                    max_results = 10,
+                    search_phrase = query,
+                    project_key = params.project_key
                 }
             end
     }

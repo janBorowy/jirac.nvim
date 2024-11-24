@@ -1,4 +1,5 @@
 local jira_service = require("jirac.jira_service")
+local project_service = require("jirac.jira_project_service")
 local curl = require("plenary.curl")
 
 local check_for_error = require("jirac.error").check_for_error
@@ -260,6 +261,7 @@ end
 ---@field assignee User?
 ---@field reporter User?
 ---@field priority Priority?
+---@field project Project?
 
 ---@class ParentIssue
 ---@field key string
@@ -268,6 +270,7 @@ end
 ---@field type IssueType
 ---@field priority Priority
 
+---@return IssueDetailed
 local function serialize_project_issue_detailed(data)
     local serialized = serialize_project_issue(data)
     return vim.tbl_extend('error', serialized,
@@ -278,7 +281,10 @@ local function serialize_project_issue_detailed(data)
             assignee = data.fields and
                 data.fields.assignee,
             reporter = data.fields and
-                data.fields.reporter
+                data.fields.reporter,
+            project = data.fields and
+                data.fields.project and
+                project_service.transform_project(data.fields.project)
         }
     )
 end
@@ -290,7 +296,7 @@ function M.get_issue_detailed(issue_id_or_key)
     local opts = jira_service.get_base_opts()
     opts.query = {
         fields = "{id, self, key, description, status, summary, \
-        parent, assignee, reporter, priority}"
+        parent, assignee, reporter, priority, project,}"
     }
     local response = curl.get(url, opts)
 
@@ -330,6 +336,33 @@ function M.update_description(issue_id_or_key, new_description)
                 }
         }
     })
+end
+
+---@return Issue
+function M.update_parent(issue_id_or_key, new_parent_id)
+    return edit_issue(issue_id_or_key, {
+        parent = {
+            id = new_parent_id
+        }
+    })
+end
+
+---@return Issue
+function M.update_reporter(issue_id_or_key, new_reporter_id)
+    return edit_issue(issue_id_or_key, {
+        reporter = {
+            id = new_reporter_id
+        }
+    })
+end
+
+function M.assign_issue(issue_id_or_key, new_assignee_id)
+    local url = get_url(issue_id_or_key .. "/assignee")
+    local opts = jira_service.post_base_opts()
+    opts.body = vim.fn.json_encode( { accountId = new_assignee_id } )
+    local response = curl.put(url, opts)
+
+    check_for_error(response)
 end
 
 return M

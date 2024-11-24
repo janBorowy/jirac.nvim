@@ -15,13 +15,66 @@ function M.IssuePanel:_handle_edit_error(obj)
     })
 end
 
-function M.IssuePanel:_handle_edit_assignee()
-    self.parent:push(PromptFactory.create_assignee {
+function M.IssuePanel:_handle_edit_reporter()
+    self.parent:push(PromptFactory.create_user {
         renderer = self.renderer,
         parent = self.parent,
-        header = "Pick assignee",
-        callback = function (v)
-            self.parent:pop()
+        header = "Pick reporter for " .. self.issue.key,
+        callback = function (new_reporter)
+            if self.issue.reporter.accountId == new_reporter.accountId then
+                return
+            end
+            local success, obj = pcall(issue_service.update_reporter, self.issue.key, new_reporter.accountId)
+            if success then
+                self.issue.reporter = new_reporter
+                self.parent:pop()
+                self.parent:update_nui()
+            else
+                self:_handle_edit_error(obj)
+            end
+        end
+    })
+end
+
+function M.IssuePanel:_handle_edit_parent()
+    self.parent:push(PromptFactory.create_issue {
+        renderer = self.renderer,
+        parent = self.parent,
+        header = "Pick parent for " .. self.issue.key,
+        project_key = self.issue.project.key,
+        callback = function (new_parent)
+            if self.issue.parent.id == new_parent.id then
+                return
+            end
+            local success, obj = pcall(issue_service.update_parent, self.issue.key, new_parent.id)
+            if success then
+                self.issue.parent = new_parent
+                self.parent:pop()
+                self.parent:update_nui()
+            else
+                self:_handle_edit_error(obj)
+            end
+        end
+    })
+end
+
+function M.IssuePanel:_handle_edit_assignee()
+    self.parent:push(PromptFactory.create_user {
+        renderer = self.renderer,
+        parent = self.parent,
+        header = "Pick assignee for " .. self.issue.key,
+        callback = function (new_assignee)
+            if self.issue.assignee.accountId == new_assignee.accountId then
+                return
+            end
+            local success, obj = pcall(issue_service.assign_issue, self.issue.key, new_assignee.accountId)
+            if success then
+                self.issue.assignee = new_assignee
+                self.parent:pop()
+                self.parent:update_nui()
+            else
+                self:_handle_edit_error(obj)
+            end
         end
     })
 end
@@ -97,13 +150,13 @@ function M.IssuePanel:_build_right_column()
     function () return self._build_editable_field {
         label = "Parent",
         value = self.issue.parent.key,
-        press_callback = function () end
+        press_callback = function () self:_handle_edit_parent() end
     } end)
     add_lazy(self.issue.reporter,
     function () return self._build_editable_field {
         label = "Reporter",
         value = self.issue.reporter.displayName,
-        press_callback = function () end
+        press_callback = function () self:_handle_edit_reporter() end
     } end)
     add_lazy(self.issue.priority,
     function () self._build_editable_field {
@@ -170,6 +223,7 @@ end
 
 ---@class IssuePanelParams : Panel
 ---@field issue_id string
+---@field project_key string
 
 function M.IssuePanel:new(o)
     o = o or {}
