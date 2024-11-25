@@ -8,7 +8,8 @@ M.ObjectSearchPrompt = {
     size = {
         width = 60,
         height = 20
-    }
+    },
+    disable_search = false
 }
 
 function M.ObjectSearchPrompt:_get_search_phrase_value()
@@ -39,34 +40,51 @@ function M.ObjectSearchPrompt:_build_selection_rows()
 end
 
 function M.ObjectSearchPrompt:build_nui_panel()
-    return nui.rows(
+
+    if self.disable_search then
+        return nui.rows(
         nui.paragraph {
             lines = self.header,
             padding = {
-                top = 1
+                top = 1,
+                bottom = 1
             },
             align = "center",
             is_focusable = false
         },
-        nui.columns (
-            { flex = 0 },
-            nui.text_input {
-                id = "search-phrase-field",
-                flex = 1,
-                border_label = "Search phrase",
-                max_lines = 1,
-                autofocus = #self.values == 0,
-                value = self.initial_query or ""
-            },
-            nui.button {
-                label = "search",
-                align = "center",
-                on_press = function () self:_handle_search() end,
-                padding = { top = 1 }
-            }
-        ),
         self:_build_selection_rows(),
         nui.gap { flex = 1 }
+        )
+    end
+
+    return nui.rows(
+    nui.paragraph {
+        lines = self.header,
+        padding = {
+            top = 1
+        },
+        align = "center",
+        is_focusable = false
+    },
+    nui.columns (
+    { flex = 0 },
+    nui.text_input {
+        id = "search-phrase-field",
+        flex = 1,
+        border_label = "Search phrase",
+        max_lines = 1,
+        autofocus = #self.values == 0,
+        value = self.initial_query or ""
+    },
+    nui.button {
+        label = "search",
+        align = "center",
+        on_press = function () self:_handle_search() end,
+        padding = { top = 1 }
+    }
+    ),
+    self:_build_selection_rows(),
+    nui.gap { flex = 1 }
     )
 end
 
@@ -77,6 +95,7 @@ end
 ---@field initial_query string?
 ---@field callback function
 ---@field search_callback function
+---@field disable_search boolean?
 ---@field _build_selection_rows function
 ---@field _handle_search function
 ---@field _get_search_phrase_value function

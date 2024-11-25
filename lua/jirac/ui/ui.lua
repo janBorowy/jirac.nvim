@@ -2,6 +2,7 @@ local nui = require("nui-components")
 local NavigationPanel = require("jirac.ui.navigation_panel").NavigationPanel
 local ProjectPanel = require("jirac.ui.project_panel").ProjectPanel
 local IssuePanel = require("jirac.ui.issue_panel").IssuePanel
+local PromptFactory = require("jirac.ui.object_search_prompts")
 local ui_utils     = require("jirac.ui.ui_utils")
 
 local M = {}
@@ -115,7 +116,7 @@ function M.JiraWindow:new(o)
     o:push(IssuePanel:new {
         renderer = o.renderer,
         parent = o,
-        issue_id = "SCRUM-1"
+        issue_id_or_key = "SCRUM-1"
     })
 
     return o

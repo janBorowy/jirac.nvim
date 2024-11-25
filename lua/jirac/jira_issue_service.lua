@@ -152,19 +152,6 @@ function M.get_issue_suggestions(params)
     return vim.fn.json_decode(response.body)
 end
 
----@enum StatusCategory
-local STATUS_CATEGORY = {
-    "DONE",
-    "TO DO",
-    "IN PROGRESS"
-}
-
----@class Status
----@field id string
----@field description string
----@field name string
----@field statusCategory StatusCategory
-
 ---@param project_id string
 function M.get_issue_statuses(project_id)
     local url = jira_service.get_jira_url("statuses", "search")
@@ -356,11 +343,54 @@ function M.update_reporter(issue_id_or_key, new_reporter_id)
     })
 end
 
+---@return Issue
+function M.update_summary(issue_id_or_key, new_summary)
+    return edit_issue(issue_id_or_key, {
+        summary = new_summary
+    })
+end
+
 function M.assign_issue(issue_id_or_key, new_assignee_id)
     local url = get_url(issue_id_or_key .. "/assignee")
     local opts = jira_service.post_base_opts()
     opts.body = vim.fn.json_encode( { accountId = new_assignee_id } )
     local response = curl.put(url, opts)
+
+    check_for_error(response)
+end
+
+---@class Transition
+---@field id string
+---@field name string
+
+---@return Array<Transition>
+function M.get_transitions(issue_id_or_key)
+    local url = get_url(issue_id_or_key .. "/transitions")
+    local opts = jira_service.get_base_opts()
+    opts.query = {
+        expand = "transitions.fields"
+    }
+    local response = curl.get(url, opts)
+
+    check_for_error(response)
+    return vim.tbl_map(function (v)
+        return {
+            id = v.id,
+            name = v.name
+        }
+    end,
+    vim.fn.json_decode(response.body).transitions)
+end
+
+function M.transition_issue(issue_id_or_key, transition_id)
+    local url = get_url(issue_id_or_key .. "/transitions")
+    local opts = jira_service.post_base_opts()
+    opts.body = vim.fn.json_encode({
+        transition = {
+            id = transition_id
+        }
+    })
+    local response = curl.post(url, opts)
 
     check_for_error(response)
 end

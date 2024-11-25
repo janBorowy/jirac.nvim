@@ -66,4 +66,22 @@ function M.create_issue(params)
     }
 end
 
+---@class TransitionSearchPromptParams : SearchPromptParams
+---@field issue_id string
+
+---@param params TransitionSearchPromptParams
+function M.create_transition(params)
+    return ObjectSearchPrompt:new {
+            renderer = params.renderer,
+            parent = params.parent,
+            header = params.header or "Search transitions",
+            label_factory = function (v) return v.name end,
+            callback = params.callback,
+            disable_search = true,
+            search_callback = function ()
+                return require("jirac.jira_issue_service").get_transitions(params.issue_id)
+            end
+    }
+end
+
 return M

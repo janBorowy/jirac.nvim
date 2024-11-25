@@ -15,6 +15,47 @@ function M.IssuePanel:_handle_edit_error(obj)
     })
 end
 
+function M.IssuePanel:_handle_transition_issue()
+    self.parent:push(PromptFactory.create_transition {
+        renderer = self.renderer,
+        parent = self.parent,
+        header = "Transition issue " .. self.issue.key,
+        issue_id = self.issue.id,
+        callback = function (transition)
+            local success, obj = pcall(issue_service.transition_issue, self.issue.key, transition.id)
+            if success then
+                self.issue = issue_service.get_issue_detailed(self.issue.id)
+                self.parent:pop()
+                self.parent:update_nui()
+            else
+                self:_handle_edit_error(obj)
+            end
+        end
+    })
+end
+
+function M.IssuePanel:_handle_edit_summary()
+    self.parent:push(TextInputPrompt:new {
+        renderer = self.renderer,
+        parent = self.parent,
+        border_label = "Summary",
+        initial_value = self.issue.summary,
+        callback = function (new_summary)
+            if self.issue.summary == new_summary then
+                return
+            end
+            local success, obj = pcall(issue_service.update_description, self.issue.key, new_summary)
+            if success then
+                self.issue.summary = obj.summary
+                self.parent:pop()
+                self.parent:update_nui()
+            else
+                self:_handle_edit_error(obj)
+            end
+        end
+    })
+end
+
 function M.IssuePanel:_handle_edit_reporter()
     self.parent:push(PromptFactory.create_user {
         renderer = self.renderer,
@@ -103,9 +144,10 @@ end
 
 function M.IssuePanel:_build_left_column()
     return nui.rows(
-        nui.paragraph {
+        nui.button {
             lines = self.issue.summary,
-            is_focusable = false
+            on_press = function () self:_handle_edit_summary() end,
+            autofocus = true
         },
         nui.paragraph {
             lines = "Description",
@@ -120,7 +162,6 @@ function M.IssuePanel:_build_left_column()
                 top = 1,
                 left = 2
             },
-            autofocus = true,
             on_press = function () self:_handle_edit_description() end
         },
         nui.gap { flex = 1 }
@@ -138,7 +179,7 @@ function M.IssuePanel:_build_right_column()
     function() return self._build_editable_field {
         label = "Status",
         value = self.issue.status.name,
-        press_callback = function () end
+        press_callback = function () self:_handle_transition_issue() end
     } end)
     add_lazy(self.issue.assignee,
     function() return self._build_editable_field {
@@ -222,14 +263,14 @@ function M.IssuePanel:build_nui_panel()
 end
 
 ---@class IssuePanelParams : Panel
----@field issue_id string
+---@field issue_id_or_key string
 ---@field project_key string
 
 function M.IssuePanel:new(o)
     o = o or {}
     self.__index = self
     setmetatable(o, self)
-    self.issue = issue_service.get_issue_detailed(o.issue_id)
+    self.issue = issue_service.get_issue_detailed(o.issue_id_or_key)
     return o
 end
 

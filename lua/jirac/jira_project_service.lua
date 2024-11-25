@@ -8,7 +8,7 @@ local M = {}
 
 ---@class Project
 ---@field url string
----@field id number
+---@field id string
 ---@field key string
 ---@field name string
 ---@field project_type_key string
