@@ -1,6 +1,7 @@
 local jira_service = require("jirac.jira_service")
 local project_service = require("jirac.jira_project_service")
 local curl = require("plenary.curl")
+local adf_utils = require("jirac.adf_utils")
 
 local check_for_error = require("jirac.error").check_for_error
 
@@ -199,7 +200,7 @@ local function dto_to_fields(dto)
                 id = dto.project_id
             },
             summary = dto.summary,
-            description = jira_service.text_to_adf(dto.description),
+            description = adf_utils.format_to_adf(dto.description),
             issuetype = {
                 id = dto.issue_type_id
             },
@@ -297,21 +298,7 @@ end
 ---@return Issue
 function M.update_description(issue_id_or_key, new_description)
     return edit_issue(issue_id_or_key, {
-        description = {
-                type = "doc",
-                version = 1,
-                content = {
-                    {
-                        type = "paragraph",
-                        content = {
-                            {
-                                type = "text",
-                                text = new_description
-                            }
-                        }
-                    }
-                }
-        }
+        description = adf_utils.format_to_adf(new_description)
     })
 end
 

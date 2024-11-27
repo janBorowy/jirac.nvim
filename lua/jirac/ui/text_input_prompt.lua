@@ -3,7 +3,6 @@ local nui = require("nui-components")
 local M = {}
 
 M.TextInputPrompt = {
-    size = {width = 60, height = 15},
     button_label = "submit",
     initial_value = ""
 }

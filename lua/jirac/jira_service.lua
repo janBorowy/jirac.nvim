@@ -28,6 +28,7 @@ function M.post_base_opts()
     return opts
 end
 
+-- TODO: needs better ADF support
 -- https://developer.atlassian.com/cloud/jira/platform/apis/document/structure/
 ---@param text string
 function M.text_to_adf(text)
@@ -42,6 +43,18 @@ function M.text_to_adf(text)
             }}
         }}
     }
+end
+
+---@param adf table
+function M.adf_to_text(adf)
+    return vim.tbl_map(
+    function (c1)
+        return table.concat(vim.tbl_map(
+        function (c2)
+            return table.concat(vim.tbl_map(function (v) return v.text end, c2), "\n")
+        end
+        , c1.content), "\n\n")
+    end, adf.content)
 end
 
 return M

@@ -3,7 +3,9 @@ local NavigationPanel = require("jirac.ui.navigation_panel").NavigationPanel
 local ProjectPanel = require("jirac.ui.project_panel").ProjectPanel
 local IssuePanel = require("jirac.ui.issue_panel").IssuePanel
 local PromptFactory = require("jirac.ui.object_search_prompts")
-local ui_utils     = require("jirac.ui.ui_utils")
+local TextInputPrompt = require("jirac.ui.text_input_prompt").TextInputPrompt
+local ui_defaults = require("jirac.ui.ui_defaults")
+local ui_utils = require("jirac.ui.ui_utils")
 
 local M = {}
 
@@ -48,12 +50,12 @@ end
 
 function M.JiraWindow:update_nui()
     self.renderer:close()
-    self.renderer:set_size(self:peek().size or { width = 150, height = 35 } )
+    self.renderer:set_size(self:peek().size or ui_defaults.DEFAULT_SIZE )
     if self:peek() and self:peek().init then self:peek():init() end
     self.renderer:render(
         ui_utils.pad_component(
             self:peek():build_nui_panel()
-        , 1, 3)
+        , ui_defaults.PADDING.vertical, ui_defaults.PADDING.horizontal)
     )
 end
 
