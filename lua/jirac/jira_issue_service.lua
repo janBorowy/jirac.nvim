@@ -199,17 +199,7 @@ local function dto_to_fields(dto)
                 id = dto.project_id
             },
             summary = dto.summary,
-            description = {
-                type = "doc",
-                version = 1,
-                content = {{
-                    type = "paragraph",
-                    content = {{
-                        text = dto.description,
-                        type = "text"
-                    }}
-                }}
-            },
+            description = jira_service.text_to_adf(dto.description),
             issuetype = {
                 id = dto.issue_type_id
             },

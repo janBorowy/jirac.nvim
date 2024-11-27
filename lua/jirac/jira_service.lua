@@ -28,10 +28,20 @@ function M.post_base_opts()
     return opts
 end
 
--- function M.get_jira_issue(issue_key)
-    -- P(get_jira_url(issue_key))
-    -- P(get_base_opts())
-    -- return curl.get(get_jira_url(issue_key), get_base_opts())
--- end
+-- https://developer.atlassian.com/cloud/jira/platform/apis/document/structure/
+---@param text string
+function M.text_to_adf(text)
+    return {
+        type = "doc",
+        version = 1,
+        content = {{
+            type = "paragraph",
+            content = {{
+                text = text,
+                type = "text"
+            }}
+        }}
+    }
+end
 
 return M
