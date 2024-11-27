@@ -42,12 +42,7 @@ local function serialize_project_issue(data)
             data.fields.status,
         description = data.fields
             and data.fields.description ~= nil
-            and #data.fields.description.content ~= 0
-            and data.fields.description.content[1]
-            and data.fields.description.content[1].content
-            and #data.fields.description.content[1].content ~= 0
-            and data.fields.description.content[1].content[1].text
-            or nil,
+            and adf_utils.format_to_text(data.fields.description) or nil,
         priority = data.fields
             and data.fields.priority
     }

@@ -10,7 +10,7 @@ describe("adf_utils", function()
                 type = "paragraph",
                 content = {{
                     type = "text",
-                    text = "hello\n"
+                    text = "hello"
                 }}
             }}
         },
@@ -27,14 +27,14 @@ describe("adf_utils", function()
                     type = "paragraph",
                     content = {{
                         type = "text",
-                        text = "hello\n"
+                        text = "hello"
                     }}
                 },
                 {
                     type = "paragraph",
                     content = {{
                         type = "text",
-                        text = "world\n"
+                        text = "world"
                     }}
                 }
             }
@@ -53,11 +53,14 @@ describe("adf_utils", function()
                     content = {
                         {
                             type = "text",
-                            text = "hello\n"
+                            text = "hello"
+                        },
+                        {
+                            type = "hardBreak"
                         },
                         {
                             type = "text",
-                            text = "world\n"
+                            text = "world"
                         }
                     }
                 }
@@ -77,7 +80,7 @@ describe("adf_utils", function()
                     content = {
                         {
                             type = "text",
-                            text = "\n"
+                            text = ""
                         }
                     }
                 }
@@ -97,11 +100,14 @@ describe("adf_utils", function()
                     content = {
                         {
                             type = "text",
-                            text = "Hello\n"
+                            text = "Hello"
+                        },
+                        {
+                            type = "hardBreak"
                         },
                         {
                             type = "text",
-                            text = "world\n"
+                            text = "world"
                         }
                     }
                 },
@@ -110,11 +116,14 @@ describe("adf_utils", function()
                     content = {
                         {
                             type = "text",
-                            text = "World\n"
+                            text = "World"
+                        },
+                        {
+                            type = "hardBreak"
                         },
                         {
                             type = "text",
-                            text = "hello\n"
+                            text = "hello"
                         }
                     }
                 }
@@ -177,6 +186,10 @@ describe("adf_utils", function()
                             text = "hello"
                         },
                         {
+                            type = "hardBreak"
+                        }
+                        ,
+                        {
                             type = "text",
                             text = "world"
                         }
@@ -218,6 +231,9 @@ describe("adf_utils", function()
                             text = "hello"
                         },
                         {
+                            type = "hardBreak"
+                        },
+                        {
                             type = "text",
                             text = "world"
                         }
@@ -229,6 +245,9 @@ describe("adf_utils", function()
                         {
                             type = "text",
                             text = "world"
+                        },
+                        {
+                            type = "hardBreak"
                         },
                         {
                             type = "text",

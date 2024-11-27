@@ -6,7 +6,9 @@ function M.format_to_adf(text)
         local lines = {}
         for _, line in ipairs(vim.split(paragraph, "\n")) do
             lines[#lines+1] = line
+            lines[#lines+1] = "\n"
         end
+        lines[#lines] = nil
         paragraphs[#paragraphs+1] = lines
     end
     return {
@@ -16,9 +18,11 @@ function M.format_to_adf(text)
             return {
                 type = "paragraph",
                 content = vim.tbl_map(function (line)
-                    return {
+                    return line ~= "\n" and {
                         type = "text",
-                        text = line .. "\n"
+                        text = line
+                    } or {
+                        type = "hardBreak"
                     }
                 end, paragraph)
             }
@@ -30,10 +34,14 @@ function M.format_to_text(adf)
     return table.concat(
         vim.tbl_map(function (paragraph)
             return table.concat(
-                vim.tbl_map(function (line)
-                    return line.text
+                vim.tbl_map(function (inline_element)
+                    if inline_element.type == "text" then
+                        return inline_element.text
+                    elseif inline_element.type == "hardBreak" then
+                        return "\n"
+                    end
                 end, paragraph.content)
-            , "\n")
+            , "")
         end,
         adf.content)
     , "\n\n")

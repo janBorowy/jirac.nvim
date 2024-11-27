@@ -3,7 +3,7 @@ local issue_service = require("jirac.jira_issue_service")
 local TextInputPrompt = require("jirac.ui.text_input_prompt").TextInputPrompt
 local PromptFactory = require("jirac.ui.object_search_prompts")
 local ErrorPanel = require("jirac.ui.error_panel").ErrorPanel
-local util = require("jirac.util")
+local ui_utils = require("jirac.ui.ui_utils")
 local ui_defaults = require("jirac.ui.ui_defaults")
 
 local M = {}
@@ -44,6 +44,7 @@ function M.IssuePanel:_handle_edit_summary()
         initial_value = self.issue.summary,
         callback = function (new_summary)
             if self.issue.summary == new_summary then
+                self.parent:pop()
                 return
             end
             local success, obj = pcall(issue_service.update_description, self.issue.key, new_summary)
@@ -65,6 +66,7 @@ function M.IssuePanel:_handle_edit_reporter()
         header = "Pick reporter for " .. self.issue.key,
         callback = function (new_reporter)
             if self.issue.reporter.accountId == new_reporter.accountId then
+                self.parent:pop()
                 return
             end
             local success, obj = pcall(issue_service.update_reporter, self.issue.key, new_reporter.accountId)
@@ -87,6 +89,7 @@ function M.IssuePanel:_handle_edit_parent()
         project_key = self.issue.project.key,
         callback = function (new_parent)
             if self.issue.parent.id == new_parent.id then
+                self.parent:pop()
                 return
             end
             local success, obj = pcall(issue_service.update_parent, self.issue.key, new_parent.id)
@@ -108,6 +111,7 @@ function M.IssuePanel:_handle_edit_assignee()
         header = "Pick assignee for " .. self.issue.key,
         callback = function (new_assignee)
             if self.issue.assignee.accountId == new_assignee.accountId then
+                self.parent:pop()
                 return
             end
             local success, obj = pcall(issue_service.assign_issue, self.issue.key, new_assignee.accountId)
@@ -130,6 +134,7 @@ function M.IssuePanel:_handle_edit_description()
         initial_value = self.issue.description,
         callback = function (new_description)
             if self.issue.description == new_description then
+                self.parent:pop()
                 return
             end
             local success, obj = pcall(issue_service.update_description, self.issue.key, new_description)
@@ -144,12 +149,13 @@ function M.IssuePanel:_handle_edit_description()
     })
 end
 
-local function get_column_width()
-    return (ui_defaults.DEFAULT_SIZE.width - ui_defaults.PADDING.horizontal * 2) / 2
+function M.IssuePanel:_get_column_width()
+    return (ui_defaults.DEFAULT_SIZE.width - 2 * ui_defaults.PADDING.horizontal) * 3 / 4
 end
 
 function M.IssuePanel:_build_left_column()
     return nui.rows(
+        { flex = 3 },
         nui.button {
             lines = self.issue.summary,
             on_press = function () self:_handle_edit_summary() end,
@@ -163,9 +169,7 @@ function M.IssuePanel:_build_left_column()
             }
         },
         nui.button {
-            lines = vim.tbl_map(function (txt)
-                    return nui.line(nui.text(txt))
-                end, util.wrap_string(self.issue.description, get_column_width() - 2)),
+            lines = ui_utils.create_nui_lines(self.issue.description, self:_get_column_width()),
             on_press = function () self:_handle_edit_description() end
         },
         nui.gap { flex = 1 }
@@ -212,6 +216,7 @@ function M.IssuePanel:_build_right_column()
 
     fields[#fields + 1] = nui.gap { flex = 1 }
     return nui.rows(
+        { flex = 1 },
         nui.paragraph {
             lines = "Details",
             padding = {
