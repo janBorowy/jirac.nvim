@@ -29,20 +29,21 @@ Install using your favorite plugin manager:
 ```lua
 {
     "janBorowy/jirac.nvim"
-    dependencies = {
-        "grapp-dev/nui-components.nvim",
-        "nvim-lua/plenary.nvim"
-    }
+        dependencies = {
+            "grapp-dev/nui-components.nvim",
+            "nvim-lua/plenary.nvim"
+        }
 }
 ```
 
 [Packer](https://github.com/wbthomason/packer.nvim)
 ```lua
 use {
-  "grapp-dev/nui-components.nvim",
-  requires = {
-    "MunifTanjim/nui.nvim"
-  }
+    "janBorowy/jirac.nvim",
+        requires = {
+            "grapp-dev/nui-components.nvim",
+            "nvim-lua/plenary.nvim"
+        }
 }
 ```
 
