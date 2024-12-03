@@ -4,8 +4,10 @@ local ProjectPanel = require("jirac.ui.project_panel").ProjectPanel
 local IssuePanel = require("jirac.ui.issue_panel").IssuePanel
 local PromptFactory = require("jirac.ui.object_search_prompts")
 local TextInputPrompt = require("jirac.ui.text_input_prompt").TextInputPrompt
+local IssueCommentPanel = require("jirac.ui.issue_comment_panel").IssueCommentPanel
 local ui_defaults = require("jirac.ui.ui_defaults")
 local ui_utils = require("jirac.ui.ui_utils")
+local ConfirmationPanel = require("jirac.ui.confirmation_panel").ConfirmationPanel
 
 local M = {}
 
@@ -120,6 +122,21 @@ function M.JiraWindow:new(o)
         parent = o,
         issue_id_or_key = "SCRUM-1"
     })
+    -- o:push(IssueCommentPanel:new {
+    --     renderer = o.renderer,
+    --     parent = o,
+    --     issue = require("jirac.jira_issue_service").get_issue_detailed "SCRUM-1",
+    --     page = 1
+    -- })
+    -- o:push(ConfirmationPanel:new {
+    --     renderer = o.renderer,
+    --     parent = o,
+    --     title_paragraph = "Delete this comment?",
+    --     message = "Once you delete, it's gone for good",
+    --     yes_label = "Delete",
+    --     no_label = "No",
+    --     callback = function () P("deleting") end
+    -- })
 
     return o
 end

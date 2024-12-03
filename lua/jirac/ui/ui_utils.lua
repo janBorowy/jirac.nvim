@@ -29,4 +29,8 @@ function M.create_nui_lines(text, wrap_len)
     end, vim.split(text, "\n"))):flatten():totable()
 end
 
+function M.transform_iso_date(iso_date)
+    return string.sub(iso_date, 0, 10) .. " " .. string.sub(iso_date, 12, 16)
+end
+
 return M

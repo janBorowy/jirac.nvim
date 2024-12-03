@@ -20,10 +20,15 @@ end
 ---@field created string
 ---@field self string
 
+---@alias CommentOrder
+---| '"-created"'
+---| '"+created"'
+
 ---@class GetCommentsParams
 ---@field issue_id_or_key string
 ---@field start_at integer?
 ---@field max_results integer?
+---@field order_by CommentOrder?
 
 ---@class GetCommentsResponse
 ---@field values Array<Comment>
@@ -52,7 +57,8 @@ function M.get_comments(params)
     local opts = jira_service.get_base_opts()
     opts.query = {
         startAt = params.start_at,
-        maxResults = params.max_results
+        maxResults = params.max_results,
+        orderBy = params.order_by
     }
     local response = curl.get(url, opts)
 

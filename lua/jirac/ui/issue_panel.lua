@@ -3,6 +3,7 @@ local issue_service = require("jirac.jira_issue_service")
 local TextInputPrompt = require("jirac.ui.text_input_prompt").TextInputPrompt
 local PromptFactory = require("jirac.ui.object_search_prompts")
 local ErrorPanel = require("jirac.ui.error_panel").ErrorPanel
+local IssueCommentPanel = require("jirac.ui.issue_comment_panel").IssueCommentPanel
 local ui_utils = require("jirac.ui.ui_utils")
 local ui_defaults = require("jirac.ui.ui_defaults")
 
@@ -47,7 +48,7 @@ function M.IssuePanel:_handle_edit_summary()
                 self.parent:pop()
                 return
             end
-            local success, obj = pcall(issue_service.update_description, self.issue.key, new_summary)
+            local success, obj = pcall(issue_service.update_summary, self.issue.key, new_summary)
             if success then
                 self.issue.summary = obj.summary
                 self.parent:pop()
@@ -153,6 +154,15 @@ function M.IssuePanel:_get_column_width()
     return (ui_defaults.DEFAULT_SIZE.width - 2 * ui_defaults.PADDING.horizontal) * 3 / 4
 end
 
+function M.IssuePanel:_handle_open_issue_comment_panel()
+    self.parent:push(IssueCommentPanel:new {
+        renderer = self.renderer,
+        parent = self.parent,
+        issue = self.issue,
+        page = 1
+    })
+end
+
 function M.IssuePanel:_build_left_column()
     return nui.rows(
         { flex = 3 },
@@ -170,7 +180,13 @@ function M.IssuePanel:_build_left_column()
         },
         nui.button {
             lines = ui_utils.create_nui_lines(self.issue.description, self:_get_column_width()),
-            on_press = function () self:_handle_edit_description() end
+            on_press = function () self:_handle_edit_description() end,
+            max_lines = ui_defaults.window_height() - 7
+        },
+        nui.gap(1),
+        nui.button {
+            lines = "Comments",
+            on_press = function () self:_handle_open_issue_comment_panel() end
         },
         nui.gap { flex = 1 }
     )
