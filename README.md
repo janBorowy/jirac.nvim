@@ -3,26 +3,26 @@
 JiraC is a Jira Cilent built into Neovim. Plugin provides simple Jira functionality so
 developers can browse and edit tasks inside their editor.
 
-* [Features](#-features)
-* [Requirements](#-requirements)
-* [Installation](#-installation)
-* [Usage](#-usage)
-* [Configuration](#-configuration)
-* [Roadmap](#-roadmap)
+* [Features](#features)
+* [Requirements](#requirements)
+* [Installation](#installation)
+* [Usage](#usage)
+* [Configuration](#configuration)
+* [Roadmap](#roadmap)
 
 
-## Features
+## <a name="features">Features</a>
 * Browse projects and project's details
 * Browse issues and issue's details
 * Easily edit issues
 * Browse and manipulate issue's comments
 
-## Requirements
+## <a name="requirements">Requirements</a>
 * [Neovim](https://neovim.io/) - tested on >= 0.10.1
 * [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) - for "plenary.curl"
 * [nui-components.nvim](https://github.com/grapp-dev/nui-components.nvim) - for UI
 
-## Installation
+## <a name="installation">Installation</a>
 Install using your favorite plugin manager:
 
 [Lazy](https://github.com/folke/lazy.nvim)
@@ -47,8 +47,8 @@ use {
 }
 ```
 
-## Usage
+## <a name="usage">Usage</a>
 
-## Configuration
+## <a name="configuration">Configuration</a>
 
-## Roadmap
+## <a name="roadmap">Roadmap</a>
