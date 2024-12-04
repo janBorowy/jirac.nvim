@@ -31,7 +31,7 @@ function M.PromptPanel:build_nui_panel()
             label = self.button_label,
             align = "center",
             on_press = function ()
-                local ref = self.renderer:get_component_by_id("input-field")
+                local ref = self.parent.renderer:get_component_by_id("input-field")
                 self.on_submit(ref:get_current_value())
             end,
             padding = {
@@ -42,7 +42,6 @@ function M.PromptPanel:build_nui_panel()
 end
 
 ---@class PromptPanel : Panel
----@field renderer any
 ---@field title string
 ---@field form_id string
 ---@field border_label string

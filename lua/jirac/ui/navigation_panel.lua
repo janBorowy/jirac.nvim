@@ -16,11 +16,9 @@ M.NavigationPanel = {
 function M.NavigationPanel:handle_search_project()
     self.parent:push(PromptFactory.create_project {
         parent = self.parent,
-        renderer = self.renderer,
         callback = function (v)
             self.parent:push(ProjectPanel:new {
                 parent = self.parent,
-                renderer = self.renderer,
                 project = v
             })
         end
@@ -29,7 +27,6 @@ end
 
 function M.NavigationPanel:handle_create_project()
     self.parent:push(ProjectSubmitPanel:new {
-        renderer = self.renderer,
         parent = self.parent
     })
 end

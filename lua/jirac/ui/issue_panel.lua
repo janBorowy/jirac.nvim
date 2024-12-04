@@ -20,7 +20,6 @@ end
 
 function M.IssuePanel:_handle_transition_issue()
     self.parent:push(PromptFactory.create_transition {
-        renderer = self.renderer,
         parent = self.parent,
         header = "Transition issue " .. self.issue.key,
         issue_id = self.issue.id,
@@ -29,7 +28,6 @@ function M.IssuePanel:_handle_transition_issue()
             if success then
                 self.issue = issue_service.get_issue_detailed(self.issue.id)
                 self.parent:pop()
-                self.parent:update_nui()
             else
                 self:_handle_edit_error(obj)
             end
@@ -39,7 +37,6 @@ end
 
 function M.IssuePanel:_handle_edit_summary()
     self.parent:push(TextInputPrompt:new {
-        renderer = self.renderer,
         parent = self.parent,
         border_label = "Summary",
         initial_value = self.issue.summary,
@@ -52,7 +49,6 @@ function M.IssuePanel:_handle_edit_summary()
             if success then
                 self.issue.summary = obj.summary
                 self.parent:pop()
-                self.parent:update_nui()
             else
                 self:_handle_edit_error(obj)
             end
@@ -62,7 +58,6 @@ end
 
 function M.IssuePanel:_handle_edit_reporter()
     self.parent:push(PromptFactory.create_user {
-        renderer = self.renderer,
         parent = self.parent,
         header = "Pick reporter for " .. self.issue.key,
         callback = function (new_reporter)
@@ -74,7 +69,6 @@ function M.IssuePanel:_handle_edit_reporter()
             if success then
                 self.issue.reporter = new_reporter
                 self.parent:pop()
-                self.parent:update_nui()
             else
                 self:_handle_edit_error(obj)
             end
@@ -84,7 +78,6 @@ end
 
 function M.IssuePanel:_handle_edit_parent()
     self.parent:push(PromptFactory.create_issue {
-        renderer = self.renderer,
         parent = self.parent,
         header = "Pick parent for " .. self.issue.key,
         project_key = self.issue.project.key,
@@ -97,7 +90,6 @@ function M.IssuePanel:_handle_edit_parent()
             if success then
                 self.issue.parent = new_parent
                 self.parent:pop()
-                self.parent:update_nui()
             else
                 self:_handle_edit_error(obj)
             end
@@ -107,7 +99,6 @@ end
 
 function M.IssuePanel:_handle_edit_assignee()
     self.parent:push(PromptFactory.create_user {
-        renderer = self.renderer,
         parent = self.parent,
         header = "Pick assignee for " .. self.issue.key,
         callback = function (new_assignee)
@@ -119,7 +110,6 @@ function M.IssuePanel:_handle_edit_assignee()
             if success then
                 self.issue.assignee = new_assignee
                 self.parent:pop()
-                self.parent:update_nui()
             else
                 self:_handle_edit_error(obj)
             end
@@ -129,7 +119,6 @@ end
 
 function M.IssuePanel:_handle_edit_description()
     self.parent:push(TextInputPrompt:new {
-        renderer = self.renderer,
         parent = self.parent,
         border_label = "Description",
         initial_value = self.issue.description,
@@ -142,7 +131,6 @@ function M.IssuePanel:_handle_edit_description()
             if success then
                 self.issue.description = obj.description
                 self.parent:pop()
-                self.parent:update_nui()
             else
                 self:_handle_edit_error(obj)
             end
@@ -156,7 +144,6 @@ end
 
 function M.IssuePanel:_handle_open_issue_comment_panel()
     self.parent:push(IssueCommentPanel:new {
-        renderer = self.renderer,
         parent = self.parent,
         issue = self.issue,
         page = 1
@@ -247,7 +234,6 @@ end
 ---@class EditableFieldParams
 ---@field label string
 ---@field value string
----@field rendererd boolean?
 ---@field press_callback function
 
 ---@param o EditableFieldParams
@@ -291,6 +277,7 @@ end
 ---@field issue_id_or_key string
 ---@field project_key string
 
+---@param o IssuePanelParams
 function M.IssuePanel:new(o)
     o = o or {}
     self.__index = self

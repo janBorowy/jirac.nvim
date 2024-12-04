@@ -13,7 +13,7 @@ M.ObjectSearchPrompt = {
 }
 
 function M.ObjectSearchPrompt:_get_search_phrase_value()
-    local ref = self.renderer:get_component_by_id("search-phrase-field")
+    local ref = self.parent.renderer:get_component_by_id("search-phrase-field")
     return ref and ref:get_current_value()
 end
 

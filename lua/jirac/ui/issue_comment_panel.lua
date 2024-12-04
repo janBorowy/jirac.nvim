@@ -25,7 +25,6 @@ end
 
 function M.IssueCommentPanel:_handle_add_comment()
     self.parent:push(TextInputPrompt:new {
-        renderer = self.renderer,
         parent = self.parent,
         border_label = "Comment content",
         initial_value = "",
@@ -36,7 +35,6 @@ function M.IssueCommentPanel:_handle_add_comment()
             })
             if success then
                 self.parent:pop()
-                self.parent:update_nui()
             else
                 self:_handle_error_response(obj)
             end
@@ -46,7 +44,6 @@ end
 
 function M.IssueCommentPanel:_handle_edit_comment(c)
     self.parent:push(TextInputPrompt:new {
-        renderer = self.renderer,
         parent = self.parent,
         border_label = "New comment content",
         initial_value = c.text,
@@ -62,7 +59,6 @@ function M.IssueCommentPanel:_handle_edit_comment(c)
             })
             if success then
                 self.parent:pop()
-                self.parent:update_nui()
             else
                 self:_handle_error_response(obj)
             end
@@ -72,7 +68,6 @@ end
 
 function M.IssueCommentPanel:_handle_delete_comment(comment)
     self.parent:push(ConfirmationPanel:new {
-        renderer = self.renderer,
         parent = self.parent,
         title_paragraph = "Delete this comment?",
         message = "Once you delete, it's gone for good",
@@ -103,9 +98,7 @@ end
 
 function M.IssueCommentPanel:_handle_next_page()
     if self.page < self:_get_max_page() then
-        self.parent:pop()
-        self.parent:push(M.IssueCommentPanel:new {
-            renderer = self.renderer,
+        self.parent:swap(M.IssueCommentPanel:new {
             parent = self.parent,
             issue = self.issue,
             page = self.page + 1
@@ -115,9 +108,7 @@ end
 
 function M.IssueCommentPanel:_handle_previous_page()
     if self.page > 1 then
-        self.parent:pop()
-        self.parent:push(M.IssueCommentPanel:new {
-            renderer = self.renderer,
+        self.parent:swap(M.IssueCommentPanel:new {
             parent = self.parent,
             issue = self.issue,
             page = self.page - 1

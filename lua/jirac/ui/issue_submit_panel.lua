@@ -14,7 +14,7 @@ M.IssueSubmitPanel = {
 ---@param id string
 ---@return string
 function M.IssueSubmitPanel:_get_field_value(id)
-    local ref = self.renderer:get_component_by_id(id)
+    local ref = self.parent.renderer:get_component_by_id(id)
     if not ref then
         error "ILLEGAL STATE: field value is missing"
     end
@@ -48,7 +48,6 @@ end
 
 function M.IssueSubmitPanel:_handle_pick_parent_issue()
     self.parent:push(IssueSearchPanel:new {
-        renderer = self.renderer,
         parent = self.parent,
         project = self.project,
         search_phrase = "",

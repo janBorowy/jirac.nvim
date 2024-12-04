@@ -11,7 +11,6 @@ M.ProjectPanel = {
 
 function M.ProjectPanel:_handle_create_issue()
     self.parent:push(IssueSubmitPanel:new {
-        renderer = self.renderer,
         parent = self.parent,
         project = self.project
     })
@@ -27,7 +26,7 @@ function M.ProjectPanel:_fetch_issues()
 end
 
 function M.ProjectPanel:_handle_refresh_issues()
-    self.search_phrase = self.renderer:get_component_by_id("search-phrase"):get_current_value()
+    self.search_phrase = self.parent.renderer:get_component_by_id("search-phrase"):get_current_value()
     self.issues = self:_fetch_issues()
     self.parent:update_nui()
 end

@@ -3,7 +3,6 @@ local M = {}
 
 ---@class SearchPromptParams
 ---@field parent any
----@field renderer any
 ---@field header string?
 ---@field initial_query string?
 ---@field callback function
@@ -11,7 +10,6 @@ local M = {}
 ---@param params SearchPromptParams
 function M.create_project(params)
     return ObjectSearchPrompt:new {
-            renderer = params.renderer,
             parent = params.parent,
             header = params.header or "Search project",
             label_factory = function (v) return v.key .. " " .. v.name end,
@@ -29,7 +27,6 @@ end
 ---@param params SearchPromptParams
 function M.create_user(params)
     return ObjectSearchPrompt:new {
-            renderer = params.renderer,
             parent = params.parent,
             header = params.header or "Search assignee",
             label_factory = function (v) return v.displayName end,
@@ -50,7 +47,6 @@ end
 ---@param params IssueSearchPromptParams
 function M.create_issue(params)
     return ObjectSearchPrompt:new {
-            renderer = params.renderer,
             parent = params.parent,
             header = params.header or "Search issue",
             label_factory = function (v) return v.key .. v.summary end,
@@ -72,7 +68,6 @@ end
 ---@param params TransitionSearchPromptParams
 function M.create_transition(params)
     return ObjectSearchPrompt:new {
-            renderer = params.renderer,
             parent = params.parent,
             header = params.header or "Search transitions",
             label_factory = function (v) return v.name end,

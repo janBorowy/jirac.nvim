@@ -13,9 +13,7 @@ M.ProjectSearchPanel = {
 }
 
 function M.put_project_search_panel(panel, query_string)
-    panel.parent:pop()
-    panel.parent:push(M.ProjectSearchPanel:new {
-        renderer = panel.renderer,
+    panel.parent:swap(M.ProjectSearchPanel:new {
         parent = panel.parent,
         query_string = query_string,
         apiResponse = project_service.search_projects({
@@ -38,7 +36,6 @@ function M.ProjectSearchPanel:build_search_result_rows()
             align = "center",
             on_press = function ()
                 self.parent:push(ProjectPanel:new({
-                    renderer = self.renderer,
                     parent = self.parent,
                     project = proj
                 }))
@@ -55,7 +52,7 @@ end
 function M.ProjectSearchPanel:_handle_previous_page()
     if self.current_page ~= 1 then
         self.current_page = self.current_page - 1
-        local v = self.renderer:get_component_by_id("search-phrase-field").value
+        local v = self.parent.renderer:get_component_by_id("search-phrase-field").value
         M.put_project_search_panel(self, v)
     end
 end
@@ -63,7 +60,7 @@ end
 function M.ProjectSearchPanel:_handle_next_page()
     if self.current_page < self:_get_total_pages_count() then
         self.current_page = self.current_page + 1
-        local v = self.renderer:get_component_by_id("search-phrase-field").value
+        local v = self.parent.renderer:get_component_by_id("search-phrase-field").value
         M.put_project_search_panel(self, v)
     end
 end
@@ -90,7 +87,7 @@ function M.ProjectSearchPanel:build_nui_panel()
                 label = "search",
                 align = "center",
                 on_press = function ()
-                    local v = self.renderer:get_component_by_id("search-phrase-field").value
+                    local v = self.parent.renderer:get_component_by_id("search-phrase-field").value
                     M.put_project_search_panel(self, v)
                 end,
                 padding = {

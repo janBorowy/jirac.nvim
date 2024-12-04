@@ -15,7 +15,6 @@ function M.put_issue_search_panel(panel)
     panel.parent:pop()
 
     panel.parent:push(M.IssueSearchPanel:new {
-        renderer = panel.renderer,
         parent = panel.parent,
         search_phrase = panel.search_phrase,
         project = panel.project,

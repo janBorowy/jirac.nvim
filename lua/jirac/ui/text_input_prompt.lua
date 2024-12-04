@@ -20,7 +20,7 @@ function M.TextInputPrompt:build_nui_panel()
             label = self.button_label,
             align = "center",
             on_press = function()
-                local ref = self.renderer:get_component_by_id("input-field")
+                local ref = self.parent.renderer:get_component_by_id("input-field")
                 self.callback(ref and ref:get_current_value())
             end,
             global_press_key = "<CR>"

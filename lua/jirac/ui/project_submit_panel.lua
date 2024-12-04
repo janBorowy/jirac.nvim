@@ -12,7 +12,7 @@ M.ProjectSubmitPanel = {
 ---@param id string
 ---@return string
 function M.ProjectSubmitPanel:_get_field_value(id)
-    local ref = self.renderer:get_component_by_id(id)
+    local ref = self.parent.renderer:get_component_by_id(id)
     if not ref then
         error "ILLEGAL STATE: field value is missing"
     end
@@ -136,11 +136,7 @@ function M.ProjectSubmitPanel:build_nui_panel()
     return self._form
 end
 
----@class ProjectPanel : Panel
----@field renderer any
----@field parent any
-
----@param o ProjectPanel
+---@param o Panel
 function M.ProjectSubmitPanel:new(o)
     o = o or {}
     self.__index = self
