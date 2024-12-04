@@ -42,16 +42,16 @@ local function serialize_project_issue(data)
             data.fields.status,
         description = data.fields
             and data.fields.description ~= nil
-            and adf_utils.format_to_text(data.fields.description) or nil,
-        priority = data.fields
-            and data.fields.priority
+            and data.fields.description ~= vim.NIL
+            and adf_utils.format_to_text(data.fields.description) or "",
+        priority = data.fields and data.fields.priority
     }
 end
 
 ---@return Array<Issue>
 local function serialize_project_issues(data)
     return vim.tbl_map(function (i)
-        serialize_project_issue(i)
+        return serialize_project_issue(i)
     end, data.issues)
 end
 
@@ -195,7 +195,9 @@ local function dto_to_fields(dto)
                 id = dto.project_id
             },
             summary = dto.summary,
-            description = adf_utils.format_to_adf(dto.description),
+            description = dto.description and
+                dto.description ~= vim.NIL and
+                adf_utils.format_to_adf(dto.description) or "",
             issuetype = {
                 id = dto.issue_type_id
             },

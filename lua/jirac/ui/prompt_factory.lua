@@ -49,7 +49,7 @@ function M.create_issue(params)
     return ObjectSearchPrompt:new {
             parent = params.parent,
             header = params.header or "Search issue",
-            label_factory = function (v) return v.key .. v.summary end,
+            label_factory = function (v) return v.key .. " " .. v.summary end,
             initial_query = params.initial_query or "",
             callback = params.callback,
             search_callback = function (query)

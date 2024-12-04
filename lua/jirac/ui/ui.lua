@@ -43,7 +43,7 @@ function M.JiraWindow:swap(panel)
 end
 
 function M.JiraWindow:update_nui()
-    if self.renderer then P("closing") self.renderer:close() end
+    if self.renderer then self.renderer:close() end
     self.renderer = nui.create_renderer {
         width = self:peek().size and self:peek().size.width or ui_defaults.DEFAULT_SIZE.width,
         height = self:peek().size and self:peek().size.height or ui_defaults.DEFAULT_SIZE.height
@@ -80,23 +80,7 @@ function M.JiraWindow:new(o)
     o = o or {}
     self.__index = self
     setmetatable(o, self)
-
-    -- o.renderer = nui.create_renderer({
-    --     keymap = {
-    --         close = "q"
-    --     }
-    -- })
-    --
-
-    o:push(IssuePanel:new {
-        parent = o,
-        issue_id_or_key = "SCRUM-1",
-        project_key = "SCRUM"
-    })
-
     return o
 end
-
-M.JiraWindowInstance = M.JiraWindow:new()
 
 return M

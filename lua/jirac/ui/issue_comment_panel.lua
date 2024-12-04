@@ -2,7 +2,6 @@ local nui = require("nui-components")
 local comment_service = require("jirac.jira_comment_service")
 local ui_utils = require("jirac.ui.ui_utils")
 local ui_defaults = require("jirac.ui.ui_defaults")
-local credentials = require("jirac.storage")._credentials
 local ConfirmationPanel = require("jirac.ui.confirmation_panel").ConfirmationPanel
 local ErrorPanel = require("jirac.ui.error_panel").ErrorPanel
 local TextInputPrompt = require("jirac.ui.text_input_prompt").TextInputPrompt
@@ -93,6 +92,7 @@ function M.IssueCommentPanel:_handle_delete_comment(comment)
 end
 
 function M.IssueCommentPanel:_get_max_page()
+    if self.api_response.total == 0 then return 1 end
     return math.ceil(self.api_response.total / PAGE_SIZE)
 end
 
@@ -117,6 +117,7 @@ function M.IssueCommentPanel:_handle_previous_page()
 end
 
 function M.IssueCommentPanel:_is_user_comment(c)
+    local credentials = require("jirac.storage")._credentials
     return c.author.emailAddress == credentials.email
 end
 
@@ -168,8 +169,17 @@ function M.IssueCommentPanel:build_nui_panel()
             lines = "Comments for " .. self.issue.key,
             autofocus = true
         })
-    for _, comment in ipairs(self:_create_comment_components()) do
-        table.insert(components, comment)
+    local comment_components = self:_create_comment_components()
+    if #comment_components > 0 then
+        for _, comment in ipairs(comment_components) do
+            table.insert(components, comment)
+        end
+    else
+        table.insert(components, nui.gap { flex = 1 })
+        table.insert(components, nui.paragraph {
+            lines = "Issue has no comments yet"
+        })
+        table.insert(components, nui.gap { flex = 1 })
     end
     table.insert(components,
         nui.columns(

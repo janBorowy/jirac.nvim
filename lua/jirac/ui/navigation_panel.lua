@@ -4,7 +4,7 @@ local ProjectSubmitPanel = require("jirac.ui.project_submit_panel").ProjectSubmi
 local ProjectSearchPanel = require("jirac.ui.project_search_panel").ProjectSearchPanel
 local project_service = require("jirac.jira_project_service")
 local put_project_search_panel = require("jirac.ui.project_search_panel").put_project_search_panel
-local PromptFactory = require("jirac.ui.object_search_prompts")
+local PromptFactory = require("jirac.ui.prompt_factory")
 local ProjectPanel = require("jirac.ui.project_panel").ProjectPanel
 
 local M = {}

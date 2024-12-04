@@ -1,5 +1,6 @@
 local curl = require("plenary.curl")
 local jira_service = require("jirac.jira_service")
+local adf_utils = require("jirac.adf_utils")
 
 local check_for_error = require("jirac.error").check_for_error
 
@@ -83,7 +84,7 @@ function M.post_comment(params)
     local url = get_url(params.issue_id_or_key)
     local opts = jira_service.post_base_opts()
     opts.body = vim.fn.json_encode({
-        body = jira_service.text_to_adf(params.text)
+        body = adf_utils.format_to_adf(params.text)
     })
     local response = curl.post(url, opts)
 
@@ -115,7 +116,7 @@ function M.edit_comment(params)
     local url = get_url(params.issue_id_or_key, params.comment_id)
     local opts = jira_service.post_base_opts()
     opts.body = vim.fn.json_encode {
-        body = jira_service.text_to_adf(params.text)
+        body = adf_utils.format_to_adf(params.text)
     }
     local response = curl.put(url, opts)
 

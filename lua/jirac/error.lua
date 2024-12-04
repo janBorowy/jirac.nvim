@@ -17,6 +17,7 @@ end
 
 function M.check_for_error(response)
     if response.status == 400 then
+        P(response)
         error (create_bad_request_error(response.body))
     elseif response.status == 401 then
         error ("Not authorized: " .. vim.inspect(response))

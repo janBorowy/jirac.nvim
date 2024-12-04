@@ -49,6 +49,17 @@ use {
 
 ## <a name="usage">Usage</a>
 
+`:Jirac`
+
+Open Jirac navigation panel.
+
+`:JiracIssue <issue_key | search_phrase> [<project_key>]`
+
+Open issue panel. Use it to browse, modify and transition issues.
+Jirac runs a search every time this command is used and will
+open issue search panel instead if more than one or no issue is found.
+If no project_key is specified, `default_project_key` will be used.
+
 ## <a name="configuration">Configuration</a>
 
 ## <a name="roadmap">Roadmap</a>
