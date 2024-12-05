@@ -10,6 +10,7 @@ user-friendly interface.
 * [Installation](#installation)
 * [Usage](#usage)
 * [Configuration](#configuration)
+* [Known Issues](#known-issues)
 * [Roadmap](#roadmap)
 
 
@@ -59,16 +60,26 @@ Open Jirac navigation panel.
 
 Open issue panel. Use it to browse, modify and transition issues.
 `<issue_key>` must be an exact issue's key.
-If no project_key is specified, `default_project_key` will be used.
+If no project_key is specified, `<default_project_key>` will be used.
 
 `:JiracIssueSearch <search_phrase> [<project_key>]`
 
 Search for issue containing `<search_phrase>` in it's summary or description.
 
 `:JiracJql <jql>`
-`:JiracProject <project_key>`
+
+`:JiracProject [<project_key>]`
+
+Open project panel of project specified by `<project_key>` argument or
+`<default_project_key>` if none is specified.
+
 `:JiracProjectSearch <search_phrase>`
+
+Search for a project using `<search_phrase>`
 
 ## <a name="configuration">Configuration</a>
 
 ## <a name="roadmap">Roadmap</a>
+
+## <a name="known-issues">Known Issues</a>
+- You can't add issues to Company-managed software/business project types

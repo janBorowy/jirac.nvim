@@ -24,6 +24,7 @@ function M.JiraWindow:peek()
 end
 
 function M.JiraWindow:push(panel)
+    panel.parent = self
     self.panels[#self.panels + 1] = panel
     self:update_nui()
 end

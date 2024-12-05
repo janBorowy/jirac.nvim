@@ -35,8 +35,7 @@ end
 
 function M.ProjectSubmitPanel:_handle_project_submit_error(obj)
     local panel = ErrorPanel:new({
-        errors = obj.errors,
-        parent = self.parent
+        errors = obj.errors
     })
     self.parent:push(panel)
 end

@@ -177,7 +177,7 @@ function M.IssuePanel:_build_left_column()
                 lines = "Comments",
                 on_press = function () self:_handle_open_issue_comment_panel() end,
                 padding = {
-                    right = 4
+                    right = 4,
                 }
             },
             nui.button {

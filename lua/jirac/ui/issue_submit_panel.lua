@@ -2,7 +2,7 @@ local nui = require("nui-components")
 local issue_service = require("jirac.jira_issue_service")
 local user_service = require("jirac.jira_user_service")
 local ErrorPanel = require("jirac.ui.error_panel").ErrorPanel
-local IssueSearchPanel = require("jirac.ui.issue_search_panel").IssueSearchPanel
+local prompt_factory = require("jirac.ui.prompt_factory")
 
 local M = {}
 
@@ -37,19 +37,17 @@ end
 
 function M.IssueSubmitPanel:_handle_project_submit_error(obj)
     local panel = ErrorPanel:new({
-        errors = obj.errors,
-        parent = self.parent
+        errors = obj.errors
     })
     self.parent:push(panel)
 end
 
 function M.IssueSubmitPanel:_handle_pick_parent_issue()
-    self.parent:push(IssueSearchPanel:new {
-        parent = self.parent,
-        project = self.project,
-        search_phrase = "",
+    self.parent:push(prompt_factory.create_issue {
+        project_key = self.project.key,
         callback = function (issue)
             self.form_data.parent_issue = issue
+            self.parent:pop()
         end
     })
 end

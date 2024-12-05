@@ -42,14 +42,11 @@ end
 
 ---@class ErrorPanelParams
 ---@field errors table<string, string> 
----@field parent any
 
 function M.ErrorPanel:new(o)
     o = o or {}
     self.__index = self
     setmetatable(o, self)
-    self.errors = o.errors
-    self.parent = o.parent
     return o
 end
 

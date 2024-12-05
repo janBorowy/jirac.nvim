@@ -1,8 +1,9 @@
 local ObjectSearchPrompt = require("jirac.ui.object_search_prompt").ObjectSearchPrompt
 local M = {}
 
+local PAGE_SIZE = 13
+
 ---@class SearchPromptParams
----@field parent any
 ---@field header string?
 ---@field initial_query string?
 ---@field callback function
@@ -10,14 +11,13 @@ local M = {}
 ---@param params SearchPromptParams
 function M.create_project(params)
     return ObjectSearchPrompt:new {
-            parent = params.parent,
             header = params.header or "Search project",
             label_factory = function (v) return v.key .. " " .. v.name end,
             initial_query = params.initial_query or "",
             callback = params.callback,
             search_callback = function (query)
                 return require("jirac.jira_project_service").search_projects {
-                    maxResults = 10,
+                    maxResults = PAGE_SIZE,
                     query = query
                 }.values
             end
@@ -27,14 +27,13 @@ end
 ---@param params SearchPromptParams
 function M.create_user(params)
     return ObjectSearchPrompt:new {
-            parent = params.parent,
             header = params.header or "Search assignee",
             label_factory = function (v) return v.displayName end,
             initial_query = params.initial_query or "",
             callback = params.callback,
             search_callback = function (query)
                 return require("jirac.jira_user_service").search_users {
-                    maxResults = 10,
+                    maxResults = PAGE_SIZE,
                     query = query
                 }
             end
@@ -47,14 +46,13 @@ end
 ---@param params IssueSearchPromptParams
 function M.create_issue(params)
     return ObjectSearchPrompt:new {
-            parent = params.parent,
             header = params.header or "Search issue",
             label_factory = function (v) return v.key .. " " .. v.summary end,
             initial_query = params.initial_query or "",
             callback = params.callback,
             search_callback = function (query)
                 return require("jirac.jira_issue_service").search_project_issues {
-                    max_results = 10,
+                    max_results = PAGE_SIZE,
                     search_phrase = query,
                     project_key = params.project_key
                 }
@@ -68,7 +66,6 @@ end
 ---@param params TransitionSearchPromptParams
 function M.create_transition(params)
     return ObjectSearchPrompt:new {
-            parent = params.parent,
             header = params.header or "Search transitions",
             label_factory = function (v) return v.name end,
             callback = params.callback,

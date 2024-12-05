@@ -2,17 +2,24 @@ local nui = require("nui-components")
 local issue_service = require("jirac.jira_issue_service")
 local project_service = require("jirac.jira_project_service")
 local IssueSubmitPanel = require("jirac.ui.issue_submit_panel").IssueSubmitPanel
+local IssuePanel = require("jirac.ui.issue_panel").IssuePanel
 
 local M = {}
-local maxIssueSearchResults = 25
+local ISSUE_PAGE_SIZE = 26
 
 M.ProjectPanel = {
     current_page = 1
 }
 
+function M.ProjectPanel:_handle_open_issue(issue)
+    self.parent:push(IssuePanel:new {
+        issue_id_or_key = issue.key,
+        project_key = self.project.key
+    })
+end
+
 function M.ProjectPanel:_handle_create_issue()
     self.parent:push(IssueSubmitPanel:new {
-        parent = self.parent,
         project = self.project
     })
 end
@@ -20,7 +27,7 @@ end
 ---@return Array<Issue>
 function M.ProjectPanel:_fetch_issues()
     return issue_service.search_project_issues {
-        maxResults = maxIssueSearchResults,
+        max_results = ISSUE_PAGE_SIZE,
         project_key = self.project.key,
         search_phrase = self.search_phrase
     }
@@ -28,28 +35,29 @@ end
 
 function M.ProjectPanel:_handle_refresh_issues()
     self.search_phrase = self.parent.renderer:get_component_by_id("search-phrase"):get_current_value()
-    self.issues = self:_fetch_issues()
-    self.parent:update_nui()
+    self.parent:swap(M.ProjectPanel:new {
+        search_phrase = self.search_phrase,
+        project = self.project,
+        project_id_or_key = self.project.key
+    })
 end
 
 function M.ProjectPanel:_build_issues_column()
     local key_column = {}
     local summary_column = {}
     local status_column = {}
-    for i, k in ipairs(self.issues) do
-        if i > maxIssueSearchResults then
-            break
-        end
+    for _, issue in ipairs(self.issues) do
         key_column[#key_column + 1] = nui.button {
-            label = k.key,
+            label = issue.key,
+            on_press = function () self:_handle_open_issue(issue) end
         }
         summary_column[#summary_column + 1] = nui.paragraph {
-            lines = k.summary,
+            lines = issue.summary,
             max_lines = 1,
             is_focusable = false,
         }
         status_column[#status_column + 1] = nui.paragraph {
-            lines = k.status_name,
+            lines = issue.status.name,
             is_focusable = false
         }
     end
@@ -98,10 +106,9 @@ function M.ProjectPanel:_build_issues_column()
         { flex = 0 },
         nui.rows(unpack(key_column)),
         nui.rows(unpack(summary_column)),
-        nui.rows(unpack(status_column)),
-        nui.gap(1)
+        nui.rows(unpack(status_column))
     ) or nui.gap(1),
-    nui.gap({flex = 1}))
+    nui.gap { flex = 1 })
 end
 
 function M.ProjectPanel:_create_field(name, value)
@@ -154,7 +161,7 @@ function M.ProjectPanel:new(o)
     o = o or {}
     self.__index = self
     setmetatable(o, self)
-    o.project = project_service.get_project(o.project_id_or_key)
+    o.project = o.project or project_service.get_project(o.project_id_or_key)
     o.search_phrase = o.search_phrase or ""
     o.issues = o:_fetch_issues()
     return o

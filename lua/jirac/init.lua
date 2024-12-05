@@ -37,7 +37,6 @@ end
 local function create_issue_panel(issue_id, project_key)
     local window = JiraWindow:new()
     window:push(IssuePanel:new {
-        parent = window,
         issue_id_or_key = issue_id,
         project_key = project_key
     })
@@ -48,12 +47,10 @@ end
 local function create_issue_prompt(search_phrase, project_key)
     local window = JiraWindow:new()
     window:push(prompt_factory.create_issue {
-        parent = window,
         project_key = project_key,
         initial_query = search_phrase,
         callback = function (issue)
             window:push(IssuePanel:new {
-                parent = window,
                 issue_id_or_key  = issue.id,
                 project_key = project_key
             })
@@ -92,7 +89,6 @@ vim.api.nvim_create_user_command('JiracIssueSearch', handle_jirac_issue_search, 
 local function create_project_panel(project_key)
     local window = JiraWindow:new()
     window:push(ProjectPanel:new {
-        parent = window,
         project_id_or_key = project_key
     })
 end
@@ -110,4 +106,28 @@ vim.api.nvim_create_user_command('JiracProject', handle_jirac_project, {
     nargs = "?"
 })
 
+local function create_project_prompt(search_phrase)
+    local window = JiraWindow:new()
+    window:push(prompt_factory.create_project {
+        initial_query = search_phrase,
+        callback = function (project)
+            window:push(ProjectPanel:new {
+                project_id_or_key = project.key
+            })
+        end
+    })
+end
+
+local function handle_jirac_project_search(opts)
+    local search_phrase = opts.fargs[1] or ""
+
+    local success, obj = pcall(create_project_prompt, search_phrase)
+    if not success then
+        error (vim.inspect(obj))
+    end
+end
+
+vim.api.nvim_create_user_command('JiracProjectSearch', handle_jirac_project_search, {
+    nargs = "?"
+})
 return M
