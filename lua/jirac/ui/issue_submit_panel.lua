@@ -6,10 +6,7 @@ local IssueSearchPanel = require("jirac.ui.issue_search_panel").IssueSearchPanel
 
 local M = {}
 
-M.IssueSubmitPanel = {
-    size = { width = 90, height = 30 },
-    project = nil
-}
+M.IssueSubmitPanel = {}
 
 ---@param id string
 ---@return string
@@ -105,7 +102,8 @@ function M.IssueSubmitPanel:_get_parent_issue_selection_component()
             end,
             align = "center"
         },
-        nui.gap { flex = 1 }
+        nui.gap { flex = 1 },
+        nui.gap(1)
     )
 end
 

@@ -1,5 +1,6 @@
 local nui = require("nui-components")
 local issue_service = require("jirac.jira_issue_service")
+local project_service = require("jirac.jira_project_service")
 local IssueSubmitPanel = require("jirac.ui.issue_submit_panel").IssueSubmitPanel
 
 local M = {}
@@ -118,8 +119,7 @@ function M.ProjectPanel:_create_field(name, value)
             left = 2,
             bottom = 1
         }
-    }
-    )
+    })
 end
 
 function M.ProjectPanel:_build_details_column()
@@ -144,16 +144,17 @@ function M.ProjectPanel:build_nui_panel()
     ))
 end
 
----@class ProjectPanel : Panel
----@field project Project
+---@class ProjectPanelParams : Panel
+---@field project_id_or_key string
 ---@field issues Array<Issue>?
 ---@field search_phrase string?
 
----@param o ProjectPanel
+---@param o ProjectPanelParams
 function M.ProjectPanel:new(o)
     o = o or {}
     self.__index = self
     setmetatable(o, self)
+    o.project = project_service.get_project(o.project_id_or_key)
     o.search_phrase = o.search_phrase or ""
     o.issues = o:_fetch_issues()
     return o

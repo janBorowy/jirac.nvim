@@ -1,7 +1,9 @@
 # jirac.nvim [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/your/your-project/blob/master/LICENSE)
 
 JiraC is a Jira Cilent built into Neovim. Plugin provides simple Jira functionality so
-developers can browse and edit tasks inside their editor.
+developers can browse and edit tasks inside their editor. Jirac uses
+[nui-components.nvim](https://github.com/grapp-dev/nui-components.nvim) to provide
+user-friendly interface.
 
 * [Features](#features)
 * [Requirements](#requirements)
@@ -53,12 +55,19 @@ use {
 
 Open Jirac navigation panel.
 
-`:JiracIssue <issue_key | search_phrase> [<project_key>]`
+`:JiracIssue <issue_key> [<project_key>]`
 
 Open issue panel. Use it to browse, modify and transition issues.
-Jirac runs a search every time this command is used and will
-open issue search panel instead if more than one or no issue is found.
+`<issue_key>` must be an exact issue's key.
 If no project_key is specified, `default_project_key` will be used.
+
+`:JiracIssueSearch <search_phrase> [<project_key>]`
+
+Search for issue containing `<search_phrase>` in it's summary or description.
+
+`:JiracJql <jql>`
+`:JiracProject <project_key>`
+`:JiracProjectSearch <search_phrase>`
 
 ## <a name="configuration">Configuration</a>
 

@@ -4,6 +4,7 @@ local prompt_factory = require("jirac.ui.prompt_factory")
 
 local JiraWindow = require("jirac.ui.ui").JiraWindow
 local IssuePanel = require("jirac.ui.issue_panel").IssuePanel
+local ProjectPanel = require("jirac.ui.project_panel").ProjectPanel
 
 local M = {}
 
@@ -63,19 +64,50 @@ end
 local function handle_jirac_issue(opts)
     local args = opts.fargs or {}
     local project_key = args[2] or storage.get_config().default_project_key
-    local issues = jira_issue_service.search_project_issues {
-        project_key = project_key,
-        search_phrase = args[1] or ""
-    }
 
-    if #issues == 1 then
-        create_issue_panel(issues[1].id, project_key)
-    else
-        create_issue_prompt(args[1] or "", project_key)
+    local success, obj = pcall(create_issue_panel, args[1], project_key)
+    if not success then
+        error (vim.inspect(obj))
     end
 end
 
 vim.api.nvim_create_user_command('JiracIssue', handle_jirac_issue, {
     nargs = "+"
 })
+
+local function handle_jirac_issue_search(opts)
+    local args = opts.fargs or {}
+    local project_key = args[2] or storage.get_config().default_project_key
+
+    local success, obj = pcall(create_issue_prompt, args[1] or "", project_key)
+    if not success then
+        error (vim.inspect(obj))
+    end
+end
+
+vim.api.nvim_create_user_command('JiracIssueSearch', handle_jirac_issue_search, {
+    nargs = "?"
+})
+
+local function create_project_panel(project_key)
+    local window = JiraWindow:new()
+    window:push(ProjectPanel:new {
+        parent = window,
+        project_id_or_key = project_key
+    })
+end
+
+local function handle_jirac_project(opts)
+    local args = opts.fargs or {}
+    local project_key = args[1] or storage.get_config().default_project_key
+    local success, obj = pcall(create_project_panel, project_key)
+    if not success then
+        error (vim.inspect(obj))
+    end
+end
+
+vim.api.nvim_create_user_command('JiracProject', handle_jirac_project, {
+    nargs = "?"
+})
+
 return M

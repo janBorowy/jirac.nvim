@@ -1,6 +1,6 @@
 local M = {}
 
-M.DEFAULT_SIZE = { width = 150, height = 37 }
+M.DEFAULT_SIZE = { width = 90, height = 37 }
 M.PADDING = { vertical = 1, horizontal = 3 }
 
 function M.window_width()

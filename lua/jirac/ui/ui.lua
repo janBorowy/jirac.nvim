@@ -16,7 +16,7 @@ local M = {}
 ---@field new function
 ---@field __index any
 
-M.JiraWindow = { panels = {} }
+M.JiraWindow = {}
 
 ---@return Panel
 function M.JiraWindow:peek()
@@ -80,6 +80,7 @@ function M.JiraWindow:new(o)
     o = o or {}
     self.__index = self
     setmetatable(o, self)
+    o.panels = {}
     return o
 end
 

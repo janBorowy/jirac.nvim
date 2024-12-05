@@ -167,14 +167,23 @@ end
 ---@field url string | nil
 ---@field avatarId integer
 
----@param projectIdOrKey string
+---@param project_id_or_key string
 ---@param dto ProjectPutDto
-function M.update_project(projectIdOrKey, dto)
+function M.update_project(project_id_or_key, dto)
     local opts = jira_service.post_base_opts()
     opts.body = vim.fn.json_encode(dto)
-    local response = curl.put(get_url(projectIdOrKey), opts)
+    local response = curl.put(get_url(project_id_or_key), opts)
     check_for_error(response)
     return M.transform_project(response.body)
+end
+
+---@param project_id_or_key string
+---@return Project
+function M.get_project(project_id_or_key)
+    local opts = jira_service.get_base_opts()
+    local response = curl.get(get_url(project_id_or_key), opts)
+    check_for_error(response)
+    return M.transform_project(vim.fn.json_decode(response.body))
 end
 
 return M

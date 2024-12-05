@@ -166,16 +166,28 @@ function M.IssuePanel:_build_left_column()
             }
         },
         nui.button {
+            flex = 1,
             lines = ui_utils.create_nui_lines(self.issue.description, self:_get_column_width()),
-            on_press = function () self:_handle_edit_description() end,
-            max_lines = ui_defaults.window_height() - 7
+            on_press = function () self:_handle_edit_description() end
         },
         nui.gap(1),
-        nui.button {
-            lines = "Comments",
-            on_press = function () self:_handle_open_issue_comment_panel() end
-        },
-        nui.gap { flex = 1 }
+        nui.columns(
+            { flex = 0 },
+            nui.button {
+                lines = "Comments",
+                on_press = function () self:_handle_open_issue_comment_panel() end,
+                padding = {
+                    right = 4
+                }
+            },
+            nui.button {
+                lines = "Yank key",
+                on_press = function ()
+                    vim.cmd ("call setreg(\"+\",\"" .. self.issue.key .. "\", \"v\")")
+                end
+            },
+            nui.gap { flex = 1 }
+        )
     )
 end
 
@@ -268,8 +280,7 @@ function M.IssuePanel:build_nui_panel()
         nui.columns (
             self:_build_left_column(),
             self:_build_right_column()
-        ),
-        nui.gap { flex = 1 }
+        )
     )
 end
 
@@ -282,7 +293,7 @@ function M.IssuePanel:new(o)
     o = o or {}
     self.__index = self
     setmetatable(o, self)
-    self.issue = issue_service.get_issue_detailed(o.issue_id_or_key)
+    o.issue = issue_service.get_issue_detailed(o.issue_id_or_key)
     return o
 end
 
