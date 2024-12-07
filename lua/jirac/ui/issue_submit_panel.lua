@@ -21,7 +21,9 @@ end
 function M.IssueSubmitPanel:_fetch_assignee_selection_data()
     return vim.tbl_map(function (t)
         t.id = t.accountId
-        return nui.option(t.displayName, t)
+        return nui.option(t.displayName ..
+            (t.emailAddress and string.len(t.emailAddress) ~= 0
+            and " (" .. t.emailAddress .. ")" or ""), t)
     end, user_service.find_users_assignable_to_issue
         {
             query = "",
