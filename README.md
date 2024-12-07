@@ -58,6 +58,8 @@ Open the issue panel. Use it to browse, modify and transition issues.
 `<issue_key>` must be an exact issue's key.
 If no project_key is specified, `<default_project_key>` will be used.
 
+![Issue panel preview](docs/issue-panel-preview.png)
+
 `:JiracIssueSearch <search_phrase> [<project_key>]`
 
 Search for an issue containing `<search_phrase>` in its summary or description.
@@ -65,6 +67,7 @@ Search for an issue containing `<search_phrase>` in its summary or description.
 `:JiracIssueCreate [<project_key>]`
 
 Open issue submit panel.
+![Issue submit panel preview](docs/issue-submit-panel-preview.png)
 
 `:JiracJql <jql>`
 
@@ -75,9 +78,13 @@ Search for an issues using `<jql>`. [More about JQL.](https://www.atlassian.com/
 Open the project panel of a project specified by the `<project_key>` argument or
 `<default_project_key>` if none is specified.
 
+![Project panel preview](docs/project-panel-preview.png)
+
 `:JiracProjectSearch <search_phrase>`
 
 Search for a project using `<search_phrase>`
+
+![Project panel preview](docs/project-search-preview.png)
 
 ## <a name="configuration">Configuration</a>
 
