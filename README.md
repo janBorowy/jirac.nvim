@@ -11,7 +11,7 @@ user-friendly interface.
 * [Usage](#usage)
 * [Configuration](#configuration)
 * [Known Issues](#known-issues)
-* [Roadmap](#roadmap)
+* [Future](#future)
 
 
 ## <a name="features">Features</a>
@@ -134,3 +134,8 @@ vim.api.nvim_set_hl(0, "NuiComponentsButtonFocused", {
 - Issue submit for Company-managed software/business project types fails, because
 these project do not contain issues.
 - Project needs better ADF support - conversion may sometimes fail
+
+## <a name="future">Future</a>
+- Better ADF support
+- Ability to open IssuePanel while viewing some buffer with issue key in it
+- Navigate panels using shortcuts
