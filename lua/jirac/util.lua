@@ -25,13 +25,28 @@ M.to_array = function (tbl)
     return result
 end
 
-M.wrap_string = function (str, len)
+M.wrap_string = function (str, line_len)
     local result = {}
-    for i = 0, math.ceil(string.len(str) / len) - 1 do
-        result[#result+1] = string.sub(str, i * len + 1,
-                    i * len + math.min(len, string.len(str) - i * len))
+    local cur_line = ""
+    for word in string.gmatch(str, "%S+") do
+        if string.len(word) >= line_len then
+            if string.len(cur_line) > 0 then
+                table.insert(result, cur_line)
+                cur_line = ""
+            end
+            table.insert(result, word)
+        elseif string.len(cur_line) + string.len(word) + 1 > line_len then
+            table.insert(result, cur_line)
+            cur_line = ""
+        else
+            cur_line = cur_line .. word .. (string.len(cur_line) + string.len(word) == line_len and "" or " ")
+        end
+    end
+    if string.len(cur_line) > 0 then
+        table.insert(result, cur_line)
     end
     return result
 end
+
 return M
 

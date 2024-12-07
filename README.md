@@ -126,3 +126,4 @@ vim.api.nvim_set_hl(0, "NuiComponentsButtonFocused", {
 ## <a name="known-issues">Known Issues</a>
 - Issue submit for Company-managed software/business project types fails, because
 these project do not contain issues.
+- Project needs better ADF support - conversion may sometimes fail
