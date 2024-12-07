@@ -122,6 +122,7 @@ function M.IssueSubmitPanel:_handle_form_submit()
     local success, obj = pcall(issue_service.create_issue, dto)
     if success then
         self.parent:pop()
+        if self.callback then self.callback(obj) end
     else
         self:_handle_project_submit_error(obj)
     end
@@ -198,6 +199,7 @@ end
 
 ---@class IssueSubmitPanelParams : Panel
 ---@field project Project
+---@field callback function
 
 function M.IssueSubmitPanel:new(o)
     o = o or {}

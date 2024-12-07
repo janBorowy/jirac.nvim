@@ -286,7 +286,6 @@ end
 
 ---@class IssuePanelParams : Panel
 ---@field issue_id_or_key string
----@field project_key string
 
 ---@param o IssuePanelParams
 function M.IssuePanel:new(o)

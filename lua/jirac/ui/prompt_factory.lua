@@ -3,6 +3,10 @@ local M = {}
 
 local PAGE_SIZE = 13
 
+local function issue_label_factory (issue)
+    return issue.key .. " " .. issue.summary
+end
+
 ---@class SearchPromptParams
 ---@field header string?
 ---@field initial_query string?
@@ -47,7 +51,7 @@ end
 function M.create_issue(params)
     return ObjectSearchPrompt:new {
             header = params.header or "Search issue",
-            label_factory = function (v) return v.key .. " " .. v.summary end,
+            label_factory = issue_label_factory,
             initial_query = params.initial_query or "",
             callback = params.callback,
             search_callback = function (query)
@@ -73,6 +77,26 @@ function M.create_transition(params)
             search_callback = function ()
                 return require("jirac.jira_issue_service").get_transitions(params.issue_id)
             end
+    }
+end
+
+---@class JqlSearchPromptParams : SearchPromptParams
+---@field next_page_token string?
+
+---@param params JqlSearchPromptParams
+function M.create_jql(params)
+    return ObjectSearchPrompt:new {
+        header = params.header or "Search using JQL",
+        label_factory = issue_label_factory,
+        initial_query = params.initial_query or "",
+        callback = params.callback,
+        search_callback = function (jql)
+            return require("jirac.jira_issue_service").get_issues_by_jql {
+                max_results = PAGE_SIZE,
+                jql = jql,
+                next_page_token = params.next_page_token
+            }
+        end
     }
 end
 

@@ -1,10 +1,10 @@
 local storage = require("jirac.storage")
-local jira_issue_service = require("jirac.jira_issue_service")
 local prompt_factory = require("jirac.ui.prompt_factory")
 
 local JiraWindow = require("jirac.ui.ui").JiraWindow
 local IssuePanel = require("jirac.ui.issue_panel").IssuePanel
 local ProjectPanel = require("jirac.ui.project_panel").ProjectPanel
+local IssueSubmitPanel = require("jirac.ui.issue_submit_panel").IssueSubmitPanel
 
 local M = {}
 
@@ -33,12 +33,10 @@ function M.setup(opts)
 end
 
 ---@param issue_id string
----@param project_key string
-local function create_issue_panel(issue_id, project_key)
+local function create_issue_panel(issue_id)
     local window = JiraWindow:new()
     window:push(IssuePanel:new {
-        issue_id_or_key = issue_id,
-        project_key = project_key
+        issue_id_or_key = issue_id
     })
 end
 
@@ -52,7 +50,6 @@ local function create_issue_prompt(search_phrase, project_key)
         callback = function (issue)
             window:push(IssuePanel:new {
                 issue_id_or_key  = issue.id,
-                project_key = project_key
             })
         end
     })
@@ -60,9 +57,8 @@ end
 
 local function handle_jirac_issue(opts)
     local args = opts.fargs or {}
-    local project_key = args[2] or storage.get_config().default_project_key
 
-    local success, obj = pcall(create_issue_panel, args[1], project_key)
+    local success, obj = pcall(create_issue_panel, args[1])
     if not success then
         error (vim.inspect(obj))
     end
@@ -130,4 +126,56 @@ end
 vim.api.nvim_create_user_command('JiracProjectSearch', handle_jirac_project_search, {
     nargs = "?"
 })
+
+local function create_jql_prompt(jql)
+    local window = JiraWindow:new()
+    window:push(prompt_factory.create_jql {
+        initial_query = jql,
+        callback = function (issue)
+            window:push(IssuePanel:new {
+                issue_id_or_key  = issue.id,
+            })
+        end
+    })
+end
+
+local function handle_jirac_jql(opts)
+    local jql = opts.args or ""
+
+    local success, obj = pcall(create_jql_prompt, jql)
+    if not success then
+        error(vim.inspect(obj))
+    end
+end
+
+vim.api.nvim_create_user_command('JiracJql', handle_jirac_jql, {
+    nargs = "+"
+})
+
+local function create_issue_submit_panel(project_key)
+    local window = JiraWindow:new()
+    window:push(IssueSubmitPanel:new {
+        project = require("jirac.jira_project_service").get_project(project_key),
+        callback = function (create_issue_response)
+            window:push(IssuePanel:new {
+                issue_id_or_key = create_issue_response.id
+            })
+        end
+    })
+end
+
+local function handle_jirac_issue_create(opts)
+    local args = opts.fargs or {}
+    local project_key = args[1] or storage.get_config().default_project_key
+
+    local success, obj = pcall(create_issue_submit_panel, project_key)
+    if not success then
+        error(vim.inspect(obj))
+    end
+end
+
+vim.api.nvim_create_user_command('JiracIssueCreate', handle_jirac_issue_create, {
+    nargs = "?"
+})
+
 return M
