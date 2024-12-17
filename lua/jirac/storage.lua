@@ -36,4 +36,15 @@ function M.set_config(c)
     M._config = vim.tbl_extend("force", M._config, c)
 end
 
+M._window = nil
+
+function M.get_window()
+    return M._window
+end
+
+function M.set_window(window)
+    M._window = window
+    return M._window
+end
+
 return M

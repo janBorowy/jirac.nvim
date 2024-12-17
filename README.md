@@ -89,6 +89,10 @@ Search for a project using `<search_phrase>`
 
 ![Project panel preview](docs/project-search-preview.png)
 
+`:JiracShow`
+
+Opens last closed panel
+
 ## <a name="configuration">Configuration</a>
 
 Configure using `setup` function:

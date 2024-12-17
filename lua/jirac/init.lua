@@ -32,9 +32,13 @@ function M.setup(opts)
 
 end
 
+local function create_new_window()
+    return storage.set_window(JiraWindow:new())
+end
+
 ---@param issue_id string
 local function create_issue_panel(issue_id)
-    local window = JiraWindow:new()
+    local window = create_new_window()
     window:push(IssuePanel:new {
         issue_id_or_key = issue_id
     })
@@ -43,7 +47,7 @@ end
 ---@param search_phrase string
 ---@param project_key string
 local function create_issue_prompt(search_phrase, project_key)
-    local window = JiraWindow:new()
+    local window = create_new_window()
     window:push(prompt_factory.create_issue {
         project_key = project_key,
         initial_query = search_phrase,
@@ -83,7 +87,7 @@ vim.api.nvim_create_user_command('JiracIssueSearch', handle_jirac_issue_search, 
 })
 
 local function create_project_panel(project_key)
-    local window = JiraWindow:new()
+    local window = create_new_window()
     window:push(ProjectPanel:new {
         project_id_or_key = project_key
     })
@@ -103,7 +107,7 @@ vim.api.nvim_create_user_command('JiracProject', handle_jirac_project, {
 })
 
 local function create_project_prompt(search_phrase)
-    local window = JiraWindow:new()
+    local window = create_new_window()
     window:push(prompt_factory.create_project {
         initial_query = search_phrase,
         callback = function (project)
@@ -128,7 +132,7 @@ vim.api.nvim_create_user_command('JiracProjectSearch', handle_jirac_project_sear
 })
 
 local function create_jql_prompt(jql)
-    local window = JiraWindow:new()
+    local window = create_new_window()
     window:push(prompt_factory.create_jql {
         initial_query = jql,
         callback = function (issue)
@@ -153,7 +157,7 @@ vim.api.nvim_create_user_command('JiracJql', handle_jirac_jql, {
 })
 
 local function create_issue_submit_panel(project_key)
-    local window = JiraWindow:new()
+    local window = create_new_window()
     window:push(IssueSubmitPanel:new {
         project = require("jirac.jira_project_service").get_project(project_key),
         callback = function (create_issue_response)
@@ -177,5 +181,15 @@ end
 vim.api.nvim_create_user_command('JiracIssueCreate', handle_jirac_issue_create, {
     nargs = "?"
 })
+
+local function handle_jirac_show_last_panel()
+    if storage.get_window() then
+        storage.get_window():update_nui()
+    else
+        error("No panel saved in the buffer")
+    end
+end
+
+vim.api.nvim_create_user_command('JiracShow', handle_jirac_show_last_panel, {})
 
 return M

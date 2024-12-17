@@ -1,5 +1,4 @@
 local nui = require("nui-components")
-local IssuePanel = require("jirac.ui.issue_panel").IssuePanel
 local ui_defaults = require("jirac.ui.ui_defaults")
 local ui_utils = require("jirac.ui.ui_utils")
 
