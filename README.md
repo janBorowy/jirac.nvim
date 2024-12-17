@@ -24,6 +24,7 @@ user-friendly interface.
 * [Neovim](https://neovim.io/) - tested on >= 0.10.1
 * [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) - for "plenary.curl"
 * [nui-components.nvim](https://github.com/grapp-dev/nui-components.nvim) - for UI
+* [nui.nvim](https://github.com/grapp-dev/nui-components.nvim) - dependency of nui-components.nvim
 
 ## <a name="installation">Installation</a>
 Install using your favorite plugin manager:
@@ -33,6 +34,7 @@ Install using your favorite plugin manager:
 {
     "janBorowy/jirac.nvim"
         dependencies = {
+            "MunifTanjim/nui.nvim",
             "grapp-dev/nui-components.nvim",
             "nvim-lua/plenary.nvim"
         }
@@ -44,6 +46,7 @@ Install using your favorite plugin manager:
 use {
     "janBorowy/jirac.nvim",
         requires = {
+            "MunifTanjim/nui.nvim",
             "grapp-dev/nui-components.nvim",
             "nvim-lua/plenary.nvim"
         }
