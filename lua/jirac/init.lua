@@ -14,24 +14,6 @@ local M = {}
 ---@field jira_domain string
 ---@field config Config?
 
-function M.setup(opts)
-
-    opts = opts or {}
-
-    assert(opts.api_key, "Missing api_key option")
-    assert(opts.email, "Missing email option")
-    assert(opts.jira_domain, "Missing jira_domain option")
-
-    storage.set_credentials {
-        api_key = opts.api_key,
-        email = opts.email,
-        jira_domain = opts.jira_domain
-    }
-
-    storage.set_config(opts.config or {})
-
-end
-
 local function create_new_window()
     return storage.set_window(JiraWindow:new())
 end
@@ -68,10 +50,6 @@ local function handle_jirac_issue(opts)
     end
 end
 
-vim.api.nvim_create_user_command('JiracIssue', handle_jirac_issue, {
-    nargs = "+"
-})
-
 local function handle_jirac_issue_search(opts)
     local args = opts.fargs or {}
     local project_key = args[2] or storage.get_config().default_project_key
@@ -81,10 +59,6 @@ local function handle_jirac_issue_search(opts)
         error (vim.inspect(obj))
     end
 end
-
-vim.api.nvim_create_user_command('JiracIssueSearch', handle_jirac_issue_search, {
-    nargs = "?"
-})
 
 local function create_project_panel(project_key)
     local window = create_new_window()
@@ -101,10 +75,6 @@ local function handle_jirac_project(opts)
         error (vim.inspect(obj))
     end
 end
-
-vim.api.nvim_create_user_command('JiracProject', handle_jirac_project, {
-    nargs = "?"
-})
 
 local function create_project_prompt(search_phrase)
     local window = create_new_window()
@@ -127,10 +97,6 @@ local function handle_jirac_project_search(opts)
     end
 end
 
-vim.api.nvim_create_user_command('JiracProjectSearch', handle_jirac_project_search, {
-    nargs = "?"
-})
-
 local function create_jql_prompt(jql)
     local window = create_new_window()
     window:push(prompt_factory.create_jql {
@@ -151,10 +117,6 @@ local function handle_jirac_jql(opts)
         error(vim.inspect(obj))
     end
 end
-
-vim.api.nvim_create_user_command('JiracJql', handle_jirac_jql, {
-    nargs = "+"
-})
 
 local function create_issue_submit_panel(project_key)
     local window = create_new_window()
@@ -178,10 +140,6 @@ local function handle_jirac_issue_create(opts)
     end
 end
 
-vim.api.nvim_create_user_command('JiracIssueCreate', handle_jirac_issue_create, {
-    nargs = "?"
-})
-
 local function handle_jirac_show_last_panel()
     if storage.get_window() then
         storage.get_window():update_nui()
@@ -190,6 +148,50 @@ local function handle_jirac_show_last_panel()
     end
 end
 
-vim.api.nvim_create_user_command('JiracShow', handle_jirac_show_last_panel, {})
+function M.setup(opts)
+
+    opts = opts or {}
+
+    assert(opts.api_key, "Missing api_key option")
+    assert(opts.email, "Missing email option")
+    assert(opts.jira_domain, "Missing jira_domain option")
+
+    storage.set_credentials {
+        api_key = opts.api_key,
+        email = opts.email,
+        jira_domain = opts.jira_domain
+    }
+
+    storage.set_config(opts.config or {})
+
+    vim.api.nvim_create_user_command('JiracIssue', handle_jirac_issue, {
+        nargs = "+"
+    })
+
+    vim.api.nvim_create_user_command('JiracIssueSearch', handle_jirac_issue_search, {
+        nargs = "?"
+    })
+
+    vim.api.nvim_create_user_command('JiracProject', handle_jirac_project, {
+        nargs = "?"
+    })
+
+
+    vim.api.nvim_create_user_command('JiracProjectSearch', handle_jirac_project_search, {
+        nargs = "?"
+    })
+
+
+    vim.api.nvim_create_user_command('JiracJql', handle_jirac_jql, {
+        nargs = "+"
+    })
+
+    vim.api.nvim_create_user_command('JiracIssueCreate', handle_jirac_issue_create, {
+        nargs = "?"
+    })
+
+
+    vim.api.nvim_create_user_command('JiracShow', handle_jirac_show_last_panel, {})
+end
 
 return M
