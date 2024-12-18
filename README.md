@@ -154,7 +154,7 @@ Signals supported:
 
 The behaviour these signals have varies depending on the panel user is in.
 
-Jira API does expose webhooks to listen for incoming change, such as issue creation
+Jira API does expose [webhooks](https://developer.atlassian.com/server/jira/platform/webhooks/) to listen for incoming change, such as issue creation
 or edition. Unfortunately, webhooks are intended for server to server communication
 and are not suitable to be used directly by a plugin.
 
