@@ -284,6 +284,19 @@ function M.IssuePanel:build_nui_panel()
     )
 end
 
+local _signal_handlers = {
+    ["issue_updated"] = function (self)
+        self.parent:update_nui()
+    end
+}
+
+---@param signal JiracWindowSignal
+function M.IssuePanel:handle_signal(signal)
+    if _signal_handlers[signal] then
+        _signal_handlers[signal](self)
+    end
+end
+
 ---@class IssuePanelParams : Panel
 ---@field issue_id_or_key string
 

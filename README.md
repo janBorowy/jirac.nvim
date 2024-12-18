@@ -95,6 +95,8 @@ Opens last closed panel
 
 ## <a name="configuration">Configuration</a>
 
+### Setup
+
 Configure using `setup` function:
 
 ```lua
@@ -114,13 +116,14 @@ Example config:
 require("jirac").setup({
     email = "foobar@mail.com",
     jira_domain = "developer.atlassian.net",
-    api_key = "SUPERSECRETTOKEN",
+    api_key = io.open(os.getenv("HOME") .. "/personal/jira_token.txt"):read("*a"),
     config = {
         default_project_key = "WD"
     }
 })
 ```
 
+### Nui-components highlighting
 Nui-components also uses its own highlight groups to determine highlighting in places
 such as button focus and option selections in selection components. Read more about
 highlight group names [here](https://nui-components.grapp.dev/docs). It is recommended
@@ -136,6 +139,31 @@ vim.api.nvim_set_hl(0, "NuiComponentsButtonFocused", {
 })
 ```
 
+### Handling signals
+Sometimes an issue might be edited by multiple people at the same time, resulting
+in stale data shown on panels, which have been opened before an edit. To overcome
+this issue, one might use jirac signals:
+
+```lua
+require("jirac.api").send_signal("issue_updated")
+```
+
+Signals supported:
+- `issue_updated`
+- `issue_created`
+
+The behaviour these signals have varies depending on the panel user is in.
+
+Jira API does expose webhooks to listen for incoming change, such as issue creation
+or edition. Unfortunately, webhooks are intended for server to server communication
+and are not suitable to be used directly by a plugin.
+
+A user can set up a [webhook relay](https://docs.webhookrelay.com/), use
+a websocket to communicate with it and send Jirac signals based on response.
+**As of right now, I could not find a suitable plugin to use websockets with Neovim.**
+
+Alternatively one can send signals using some constant interval, minizing
+this issue.
 
 ## <a name="known-issues">Known Issues</a>
 - Issue submit for Company-managed software/business project types fails, because

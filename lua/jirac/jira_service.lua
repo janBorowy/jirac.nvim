@@ -11,7 +11,7 @@ function M.get_base_opts()
     local opts = {
         accept = "application/json"
     }
-    opts.auth = credentials.email .. ":" .. credentials.api_key
+    opts.auth = vim.trim(credentials.email) .. ":" .. vim.trim(credentials.api_key)
     return opts
 end
 
@@ -22,7 +22,7 @@ function M.post_base_opts()
             ["Content-Type"] = "application/json; charset=UTF-8"
         }
     }
-    opts.auth = credentials.email .. ":" .. credentials.api_key
+    opts.auth = vim.trim(credentials.email) .. ":" .. vim.trim(credentials.api_key)
     return opts
 end
 

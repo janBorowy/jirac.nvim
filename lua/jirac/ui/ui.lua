@@ -11,6 +11,7 @@ local M = {}
 ---@class Panel
 ---@field size Size
 ---@field build_nui_panel function
+---@field handle_signal function?
 ---@field parent any
 ---@field new function
 ---@field __index any
@@ -65,6 +66,13 @@ function M.JiraWindow:_inject_default_mappings()
             handler = function () self:pop() end
         }
     })
+end
+
+---@param signal JiracWindowSignal
+function M.JiraWindow:handle_signal(signal)
+    if self:peek().handle_signal then
+        self:peek():handle_signal(signal)
+    end
 end
 
 function M.JiraWindow:_render()
