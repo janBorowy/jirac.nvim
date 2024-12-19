@@ -35,7 +35,7 @@ local function map_inline_element(element)
         return element.text
     elseif element.type == "hardBreak" then
         return "\n"
-    elseif element.type == "media" then
+    elseif element.type == "media" and element.attrs.alt then
         return "(image)[" .. element.attrs.alt .. "]"
     else return "" end
 end
@@ -44,7 +44,7 @@ function M.format_to_text(adf)
     return table.concat(
         vim.tbl_map(function (paragraph)
             return table.concat(
-                vim.tbl_map(map_inline_element, paragraph.content)
+                vim.tbl_map(map_inline_element, paragraph.content or {})
             , "")
         end,
         adf.content)
