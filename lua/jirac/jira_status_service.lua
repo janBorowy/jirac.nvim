@@ -63,10 +63,4 @@ function M.search_statuses(query)
     return serialize_search_statuses_response(response.body)
 end
 
-P(M.search_statuses {
-    project_id = "10000",
-    start_at = 0,
-    max_results = 10
-})
-
 return M
