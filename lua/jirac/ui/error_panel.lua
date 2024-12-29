@@ -1,9 +1,9 @@
 local nui = require("nui-components")
 local util = require("jirac.util")
+local ui_utils = require("jirac.ui.ui_utils")
 
 local M = {}
 
--- TODO: make configurable in plugin setup
 M.ErrorPanel = {
     size = { width = 60, height = 20 }
 }
@@ -16,7 +16,7 @@ function M.ErrorPanel:_create_error_rows()
         rows[#rows + 1] = nui.paragraph {
             lines = vim.tbl_map(function (txt)
                 return nui.line(nui.text(txt))
-            end, util.wrap_string(tostring(i) .. ". " .. k .. ": " .. v, self.size.width)),
+            end, util.wrap_string(tostring(i) .. ". " .. k .. ": " .. v, ui_utils.get_content_width(self.size.width))),
             is_focusable = true
         }
     end

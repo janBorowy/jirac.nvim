@@ -5,6 +5,7 @@ local JiraWindow = require("jirac.ui.ui").JiraWindow
 local IssuePanel = require("jirac.ui.issue_panel").IssuePanel
 local ProjectPanel = require("jirac.ui.project_panel").ProjectPanel
 local IssueSubmitPanel = require("jirac.ui.issue_submit_panel").IssueSubmitPanel
+local RequestErrorPanel = require("jirac.ui.request_error_panel").RequestErrorPanel
 
 local M = {}
 
@@ -16,6 +17,25 @@ local M = {}
 
 local function create_new_window()
     return storage.set_window(JiraWindow:new())
+end
+
+---@param error Error
+local function create_request_error_panel(error)
+    local window = create_new_window()
+    window:push(RequestErrorPanel:new {
+        error = error
+    })
+end
+
+local function wrapped_pcall(...)
+    local success, obj = pcall(...)
+    if not success then
+        if obj and obj.status then
+            create_request_error_panel(obj)
+        else
+            error (vim.inspect(obj))
+        end
+    end
 end
 
 ---@param issue_id string
@@ -43,21 +63,14 @@ end
 
 local function handle_jirac_issue(opts)
     local args = opts.fargs or {}
-
-    local success, obj = pcall(create_issue_panel, args[1])
-    if not success then
-        error (vim.inspect(obj))
-    end
+    wrapped_pcall(create_issue_panel, args[1])
 end
 
 local function handle_jirac_issue_search(opts)
     local args = opts.fargs or {}
     local project_key = args[2] or storage.get_config().default_project_key
 
-    local success, obj = pcall(create_issue_prompt, args[1] or "", project_key)
-    if not success then
-        error (vim.inspect(obj))
-    end
+    wrapped_pcall(create_issue_prompt, args[1] or "", project_key)
 end
 
 local function create_project_panel(project_key)
@@ -70,10 +83,7 @@ end
 local function handle_jirac_project(opts)
     local args = opts.fargs or {}
     local project_key = args[1] or storage.get_config().default_project_key
-    local success, obj = pcall(create_project_panel, project_key)
-    if not success then
-        error (vim.inspect(obj))
-    end
+    wrapped_pcall(create_project_panel, project_key)
 end
 
 local function create_project_prompt(search_phrase)
@@ -91,10 +101,7 @@ end
 local function handle_jirac_project_search(opts)
     local search_phrase = opts.fargs[1] or ""
 
-    local success, obj = pcall(create_project_prompt, search_phrase)
-    if not success then
-        error (vim.inspect(obj))
-    end
+    wrapped_pcall(create_project_prompt, search_phrase)
 end
 
 local function create_jql_prompt(jql)
@@ -112,10 +119,7 @@ end
 local function handle_jirac_jql(opts)
     local jql = opts.args or ""
 
-    local success, obj = pcall(create_jql_prompt, jql)
-    if not success then
-        error(vim.inspect(obj))
-    end
+    wrapped_pcall(create_jql_prompt, jql)
 end
 
 local function create_issue_submit_panel(project_key)
@@ -134,10 +138,7 @@ local function handle_jirac_issue_create(opts)
     local args = opts.fargs or {}
     local project_key = args[1] or storage.get_config().default_project_key
 
-    local success, obj = pcall(create_issue_submit_panel, project_key)
-    if not success then
-        error(vim.inspect(obj))
-    end
+    wrapped_pcall(create_issue_submit_panel, project_key)
 end
 
 local function handle_jirac_show_last_panel()

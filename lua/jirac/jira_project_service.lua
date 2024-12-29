@@ -19,9 +19,6 @@ local M = {}
 ---@field total integer
 ---@field isLast boolean
 
----@class Error
----@field reason string
-
 local function get_url(action)
     return jira_service.get_jira_url("project", action)
 end

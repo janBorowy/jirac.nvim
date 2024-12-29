@@ -1,5 +1,6 @@
 local nui = require("nui-components")
 local util = require("jirac.util")
+local ui_defaults = require("jirac.ui.ui_defaults")
 
 local M = {}
 
@@ -15,6 +16,14 @@ function M.pad_component(component, v_pad, h_pad)
         ),
         nui.gap(h_pad)
     )
+end
+
+function M.get_content_width(width)
+    return width - 2 * ui_defaults.PADDING.horizontal
+end
+
+function M.get_content_height(height)
+    return height - 2 * ui_defaults.PADDING.vertical
 end
 
 function M.create_nui_lines(text, wrap_len)

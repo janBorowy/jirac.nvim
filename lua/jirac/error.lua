@@ -10,6 +10,7 @@ local M = {}
 ---@field type ERROR_TYPE
 ---@field errorMessages Array<string>
 ---@field errors table<string, string>
+---@field status integer
 
 ---@return Error
 local function create_error(body, status)
