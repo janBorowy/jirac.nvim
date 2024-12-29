@@ -19,11 +19,32 @@ function M.set_credentials(c)
 end
 
 ---@class Config
----@field default_project_key string
+---@field default_project_key string?
+---@field keymaps table?
+---@field window_width integer
+---@field window_height integer
 
 ---@type Config
 M._config = {
-    default_project_key = ""
+    default_project_key = "",
+    window_width = 150,
+    window_height = 37,
+    keymaps = {}
+}
+
+local default_keymaps = {
+    ["close_window"] = {
+        mode = 'n',
+        key = 'q'
+    },
+    ["previous_tab"] = {
+        mode = 'n',
+        key = 'H'
+    },
+    ["refresh_window"] = {
+        mode = 'n',
+        key = "<F5>"
+    }
 }
 
 ---@return Config
@@ -34,6 +55,7 @@ end
 ---@param c Config
 function M.set_config(c)
     M._config = vim.tbl_extend("force", M._config, c)
+    M._config.keymaps = vim.tbl_extend("force", default_keymaps, c.keymaps)
 end
 
 M._window = nil

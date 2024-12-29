@@ -1,14 +1,13 @@
 local M = {}
 
-M.DEFAULT_SIZE = { width = 90, height = 37 }
 M.PADDING = { vertical = 1, horizontal = 3 }
 
 function M.window_width()
-    return M.DEFAULT_SIZE.width - 2 * M.PADDING.horizontal
+    return require("jirac.storage").get_config().window_width - 2 * M.PADDING.horizontal
 end
 
 function M.window_height()
-    return M.DEFAULT_SIZE.height - 2 * M.PADDING.vertical
+    return require("jirac.storage").get_config().window_height - 2 * M.PADDING.vertical
 end
 
 return M

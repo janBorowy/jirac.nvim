@@ -185,13 +185,21 @@ end
 ---@field description string
 ---@field name string
 
+local function transform_issue_type(data)
+    return {
+        id = data.id,
+        description = data.description,
+        name = data.name
+    }
+end
+
 ---@return Array<IssueType>
 function M.get_issue_types()
     local url = jira_service.get_jira_url("issuetype")
     local opts = jira_service.get_base_opts()
     local response = curl.get(url, opts)
     check_for_error(response)
-    return vim.fn.json_decode(response.body)
+    return transform_issue_type(vim.fn.json_decode(response.body))
 end
 
 ---@class IssueCreateDto
@@ -255,6 +263,7 @@ end
 ---@field reporter User?
 ---@field priority Priority?
 ---@field project Project?
+---@field issue_type IssueType?
 
 ---@class ParentIssue
 ---@field key string
@@ -277,7 +286,10 @@ local function serialize_project_issue_detailed(data)
                 data.fields.reporter,
             project = data.fields and
                 data.fields.project and
-                project_service.transform_project(data.fields.project)
+                project_service.transform_project(data.fields.project),
+            issue_type = data.fields and
+                data.fields.issuetype and
+                transform_issue_type(data.fields.issuetype)
         }
     )
 end
@@ -289,7 +301,7 @@ function M.get_issue_detailed(issue_id_or_key)
     local opts = jira_service.get_base_opts()
     opts.query = {
         fields = "{id, self, key, description, status, summary, \
-        parent, assignee, reporter, priority, project,}"
+        parent, assignee, reporter, priority, project, issuetype,}"
     }
     local response = curl.get(url, opts)
 
@@ -339,6 +351,15 @@ end
 function M.update_summary(issue_id_or_key, new_summary)
     return edit_issue(issue_id_or_key, {
         summary = new_summary
+    })
+end
+
+---@return Issue
+function M.update_priority(issue_id_or_key, new_priority_id)
+    return edit_issue(issue_id_or_key, {
+        priority = {
+            id = new_priority_id
+        }
     })
 end
 

@@ -12,6 +12,7 @@ local M = {}
 ---@field size Size
 ---@field build_nui_panel function
 ---@field handle_signal function?
+---@field get_mapping_definitions function?
 ---@field parent any
 ---@field new function
 ---@field __index any
@@ -46,26 +47,38 @@ end
 function M.JiraWindow:update_nui()
     if self.renderer then self.renderer:close() end
     self.renderer = nui.create_renderer {
-        width = self:peek().size and self:peek().size.width or ui_defaults.DEFAULT_SIZE.width,
-        height = self:peek().size and self:peek().size.height or ui_defaults.DEFAULT_SIZE.height
-    }
-    self:_inject_default_mappings()
+        width = self:peek().size and self:peek().size.width or require("jirac.storage").get_config().window_width,
+        height = self:peek().size and self:peek().size.height or require("jirac.storage").get_config().window_height}
+    self:_inject_mappings(
+        vim.tbl_extend("force",
+        self:_get_common_mapping_definitions(),
+        self:peek().get_mapping_definitions and self:peek().get_mapping_definitions()
+        or {}))
     self:_render()
 end
 
-function M.JiraWindow:_inject_default_mappings()
-    self.renderer:add_mappings({
-        {
-            mode = 'n',
-            key = 'q',
-            handler = function () self.renderer:close() end
-        },
-        {
-            mode = 'n',
-            key = "H",
-            handler = function () self:pop() end
-        }
-    })
+function M.JiraWindow:_get_common_mapping_definitions()
+    return {
+        ["close_window"] = function () self.renderer:close() end,
+        ["previous_tab"] = function () self:pop() end,
+        ["refresh_window"] = function () self:update_nui() end
+    }
+end
+
+function M.JiraWindow:_inject_mappings(mapping_definitions)
+    local mappings = {}
+    local config = require("jirac.storage").get_config()
+    for k, f in pairs(mapping_definitions) do
+        local keymap = config.keymaps[k] or nil
+        if keymap then
+            mappings[#mappings+1] = {
+                mode = keymap.mode,
+                key = keymap.key,
+                handler = f
+            }
+        end
+    end
+    self.renderer:add_mappings(mappings)
 end
 
 ---@param signal JiracWindowSignal

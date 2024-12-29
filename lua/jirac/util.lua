@@ -48,5 +48,9 @@ M.wrap_string = function (str, line_len)
     return result
 end
 
+function M.flatmap_nil(o)
+    return o and o ~= vim.NIL or nil
+end
+
 return M
 
