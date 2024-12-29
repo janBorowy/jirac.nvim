@@ -199,7 +199,7 @@ function M.get_issue_types()
     local opts = jira_service.get_base_opts()
     local response = curl.get(url, opts)
     check_for_error(response)
-    return transform_issue_type(vim.fn.json_decode(response.body))
+    return vim.tbl_map(transform_issue_type, vim.fn.json_decode(response.body))
 end
 
 ---@class IssueCreateDto

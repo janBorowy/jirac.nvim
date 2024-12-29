@@ -66,7 +66,7 @@ function M.IssueSubmitPanel:_get_parent_issue_selection_component()
         nui.gap { flex = 1 },
         nui.button {
             flex = 1,
-            label = "Select subtask",
+            label = "Select parent task",
             on_press = function ()
                 self:_handle_pick_parent_issue()
             end,

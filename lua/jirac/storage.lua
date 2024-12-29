@@ -28,7 +28,7 @@ end
 M._config = {
     default_project_key = "",
     window_width = 150,
-    window_height = 37,
+    window_height = 50,
     keymaps = {}
 }
 
