@@ -42,10 +42,7 @@ local function transform_comment_data(data)
         id = data.id,
         author = data.author,
         update_author = data.updateAuthor,
-        text = data.body and
-        #data.body.content ~= 0
-        and #data.body.content[1].content ~= 0
-        and data.body.content[1].content[1].text,
+        text = adf_utils.parse(data.body),
         created = data.created,
         self = data.self
     }

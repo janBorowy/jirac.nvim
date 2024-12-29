@@ -43,7 +43,7 @@ local function serialize_project_issue(data)
         description = data.fields
             and data.fields.description ~= nil
             and data.fields.description ~= vim.NIL
-            and adf_utils.format_to_text(data.fields.description) or "",
+            and adf_utils.parse(data.fields.description) or "",
         priority = data.fields and data.fields.priority
     }
 end

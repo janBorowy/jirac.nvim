@@ -133,10 +133,12 @@ describe("adf_utils", function()
         )
     end)
 
-    it("simple map to adf", function ()
+    it("simple map adf to string", function ()
         assert.are_equal(
             "hello",
-            utils.format_to_text {
+            utils.parse {
+                version = 1,
+                type = "doc",
                 content = {{
                     type = "paragraph",
                     content = {{
@@ -148,10 +150,12 @@ describe("adf_utils", function()
         )
     end)
 
-    it ("map to adf multiple paragraphs", function ()
+    it ("map adf to string multiple paragraphs", function ()
         assert.are_equal(
         "hello\n\nworld",
-        utils.format_to_text {
+        utils.parse {
+            version = 1,
+            type = "doc",
             content = {
                 {
                     type = "paragraph",
@@ -176,7 +180,9 @@ describe("adf_utils", function()
     it ("map to adf multiple lines", function ()
         assert.are_equal(
         "hello\nworld",
-        utils.format_to_text {
+        utils.parse {
+            type = "doc",
+            version = 1,
             content = {
                 {
                     type = "paragraph",
@@ -203,7 +209,9 @@ describe("adf_utils", function()
     it ("map to adf empty", function ()
         assert.are_equal(
         "",
-        utils.format_to_text {
+        utils.parse {
+            type = "doc",
+            version = 1,
             content = {
                 {
                     type = "paragraph",
@@ -221,7 +229,9 @@ describe("adf_utils", function()
     it ("map to adf complex", function ()
         assert.are_equal(
         "hello\nworld\n\nworld\nhello",
-        utils.format_to_text {
+        utils.parse {
+            type = "doc",
+            version = 1,
             content = {
                 {
                     type = "paragraph",

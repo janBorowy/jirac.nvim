@@ -16,9 +16,11 @@ function M.RequestErrorPanel:build_nui_panel()
         },
         nui.gap(1),
         nui.paragraph {
-            lines = vim.tbl_map(function (txt)
-                return nui.line(nui.text(txt))
-            end, util.wrap_string(self.error.errorMessages[1], ui_utils.get_content_width(self.size.width))),
+            lines = vim.iter(vim.tbl_map(function (msg)
+                return ui_utils.create_nui_lines(msg,
+                ui_utils.get_content_width(self.size.width))
+            end,
+            self.error.errorMessages)):flatten():totable()
         },
         nui.gap { flex = 1 },
         nui.button {

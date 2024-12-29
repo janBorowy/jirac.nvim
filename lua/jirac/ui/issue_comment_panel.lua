@@ -135,7 +135,8 @@ function M.IssueCommentPanel:_create_comment_components()
             nui.gap(1),
             nui.paragraph {
                 flex = 1,
-                lines = ui_utils.create_nui_lines(c.text, ui_defaults.window_width()),
+                lines = c.text and ui_utils.create_nui_lines(c.text, ui_defaults.window_width())
+                or "JiraC: COMMENT CONTENTS UNREADABLE",
             },
             nui.gap(1),
             unpack(self:_is_user_comment(c) and { nui.columns(
