@@ -6,6 +6,7 @@ local ErrorPanel = require("jirac.ui.error_panel").ErrorPanel
 local IssueCommentPanel = require("jirac.ui.issue_comment_panel").IssueCommentPanel
 local ui_utils = require("jirac.ui.ui_utils")
 local ui_defaults = require("jirac.ui.ui_defaults")
+local flatmap_nil = require("jirac.util").flatmap_nil
 
 local M = {}
 
@@ -41,7 +42,7 @@ function M.IssuePanel:_handle_edit_summary()
         border_label = "Summary",
         initial_value = self.issue.summary,
         callback = function (new_summary)
-            if self.issue.summary == new_summary then
+            if flatmap_nil(self.issue.summary) and self.issue.summary == new_summary then
                 self.parent:pop()
                 return
             end
@@ -61,7 +62,7 @@ function M.IssuePanel:_handle_edit_reporter()
         parent = self.parent,
         header = "Pick reporter for " .. self.issue.key,
         callback = function (new_reporter)
-            if self.issue.reporter.accountId == new_reporter.accountId then
+            if flatmap_nil(self.issue.reporter) and self.issue.reporter.accountId == new_reporter.accountId then
                 self.parent:pop()
                 return
             end
@@ -82,7 +83,7 @@ function M.IssuePanel:_handle_edit_parent()
         header = "Pick parent for " .. self.issue.key,
         project_key = self.issue.project.key,
         callback = function (new_parent)
-            if self.issue.parent.id == new_parent.id then
+            if flatmap_nil(self.issue.parent) and self.issue.parent.id == new_parent.id then
                 self.parent:pop()
                 return
             end
@@ -102,7 +103,7 @@ function M.IssuePanel:_handle_edit_assignee()
         parent = self.parent,
         header = "Pick assignee for " .. self.issue.key,
         callback = function (new_assignee)
-            if self.issue.assignee.accountId == new_assignee.accountId then
+            if flatmap_nil(self.issue.assignee) and self.issue.assignee.accountId == new_assignee.accountId then
                 self.parent:pop()
                 return
             end
@@ -123,7 +124,7 @@ function M.IssuePanel:_handle_edit_description()
         border_label = "Description",
         initial_value = self.issue.description,
         callback = function (new_description)
-            if self.issue.description == new_description then
+            if flatmap_nil(self.issue.description) and self.issue.description == new_description then
                 self.parent:pop()
                 return
             end
@@ -139,7 +140,7 @@ function M.IssuePanel:_handle_edit_description()
 end
 
 function M.IssuePanel:_get_column_width()
-    return (ui_defaults.DEFAULT_SIZE.width - 2 * ui_defaults.PADDING.horizontal) * 3 / 4
+    return (require("jirac.storage").get_config().window_width - 2 * ui_defaults.PADDING.horizontal) * 3 / 4
 end
 
 function M.IssuePanel:_handle_open_issue_comment_panel()
@@ -193,41 +194,40 @@ end
 
 function M.IssuePanel:_build_right_column()
     local fields = {}
-    local function add_lazy(object, component_fact)
-        if object and object ~= vim.NIL then
-            fields[#fields + 1] = component_fact()
-        end
+    local function add_field(f)
+        fields[#fields+1] = f
     end
-    add_lazy(self.issue.status,
-    function() return self._build_editable_field {
+
+    add_field(self._build_editable_field({
         label = "Status",
-        value = self.issue.status.name,
+        value = flatmap_nil(self.issue.status) and self.issue.status.name,
         press_callback = function () self:_handle_transition_issue() end
-    } end)
-    add_lazy(self.issue.assignee,
-    function() return self._build_editable_field {
+    }))
+    add_field(self._build_editable_field({
+        label = "Issue type",
+        value = flatmap_nil(self.issue.issue_type) and self.issue.issue_type.name,
+        is_editable = false
+    }))
+    add_field(self._build_editable_field({
         label = "Assignee",
-        value = self.issue.assignee.displayName,
+        value = flatmap_nil(self.issue.assignee) and self.issue.assignee.displayName,
         press_callback = function () self:_handle_edit_assignee() end
-    } end)
-    add_lazy(self.issue.parent,
-    function () return self._build_editable_field {
+    }))
+    add_field(self._build_editable_field({
         label = "Parent",
-        value = self.issue.parent.key,
+        value = flatmap_nil(self.issue.parent) and self.issue.parent.key,
         press_callback = function () self:_handle_edit_parent() end
-    } end)
-    add_lazy(self.issue.reporter,
-    function () return self._build_editable_field {
+    }))
+    add_field(self._build_editable_field({
         label = "Reporter",
-        value = self.issue.reporter.displayName,
+        value = flatmap_nil(self.issue.reporter) and self.issue.reporter.displayName,
         press_callback = function () self:_handle_edit_reporter() end
-    } end)
-    add_lazy(self.issue.priority,
-    function () self._build_editable_field {
+    }))
+    add_field(self._build_editable_field({
         label = "Priority",
-        value = self.issue.priority.name,
-        press_callback = function () end
-    } end)
+        value = flatmap_nil(self.issue.priority) and self.issue.priority.name,
+        is_editable = false
+    }))
 
     fields[#fields + 1] = nui.gap { flex = 1 }
     return nui.rows(
@@ -245,8 +245,9 @@ end
 
 ---@class EditableFieldParams
 ---@field label string
----@field value string
----@field press_callback function
+---@field value string?
+---@field press_callback function?
+---@field is_editable boolean?
 
 ---@param o EditableFieldParams
 function M.IssuePanel._build_editable_field(o)
@@ -260,12 +261,13 @@ function M.IssuePanel._build_editable_field(o)
             is_focusable = false
         },
         nui.button {
-            lines = o.value,
+            lines = o.value or "Unspecified",
             padding = {
                 left = 3,
                 bottom = 1
             },
-            on_press = o.press_callback
+            on_press = o.press_callback or function () end,
+            is_focusable = o.is_editable == nil or o.is_editable
         })
 end
 
