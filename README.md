@@ -1,5 +1,7 @@
 # jirac.nvim [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/your/your-project/blob/master/LICENSE)
 
+## **Work In Progress**
+
 JiraC is a Jira Cilent built into Neovim. Plugin provides simple Jira functionality so
 developers can browse and edit tasks inside their editor. Jirac uses
 [nui-components.nvim](https://github.com/grapp-dev/nui-components.nvim) to provide
@@ -105,7 +107,15 @@ require("jirac").setup({
     jira_domain = "<your_jira_domain>",
     api_key = "<secret_api_key>",
     config = {
-        default_project_key = "<default_project_key>"
+        default_project_key = "<default_project_key>",
+        keymaps = {
+            ["keymap_name"] = {
+                mode = 'n',
+                key = 'q'
+            },
+        },
+        window_width = 150,
+        window_height = 50
     }
 })
 ```
@@ -118,7 +128,23 @@ require("jirac").setup({
     jira_domain = "developer.atlassian.net",
     api_key = io.open(os.getenv("HOME") .. "/personal/jira_token.txt"):read("*a"),
     config = {
-        default_project_key = "WD"
+        default_project_key = "EXAMPLE"
+        keymaps = {
+            ["close_window"] = {
+                mode = 'n',
+                key = 'q'
+            },
+            ["previous_tab"] = {
+                mode = 'n',
+                key = 'H'
+            },
+            ["refresh_window"] = {
+                mode = 'n',
+                key = "<F5>"
+            }
+        },
+        window_width = 150,
+        window_height = 50
     }
 })
 ```
@@ -139,38 +165,11 @@ vim.api.nvim_set_hl(0, "NuiComponentsButtonFocused", {
 })
 ```
 
-### Handling signals
-Sometimes an issue might be edited by multiple people at the same time, resulting
-in stale data shown on panels, which have been opened before an edit. To overcome
-this issue, one might use jirac signals:
-
-```lua
-require("jirac.api").send_signal("issue_updated")
-```
-
-Signals supported:
-- `issue_updated`
-- `issue_created`
-
-The behaviour these signals have varies depending on the panel user is in.
-
-Jira API does expose [webhooks](https://developer.atlassian.com/server/jira/platform/webhooks/) to listen for incoming change, such as issue creation
-or edition. Unfortunately, webhooks are intended for server to server communication
-and are not suitable to be used directly by a plugin.
-
-A user can set up a [webhook relay](https://docs.webhookrelay.com/), use
-a websocket to communicate with it and send Jirac signals based on response.
-**As of right now, I could not find a suitable plugin to use websockets with Neovim.**
-
-Alternatively one can send signals using some constant interval, minizing
-this issue.
-
 ## <a name="known-issues">Known Issues</a>
 - Issue submit for Company-managed software/business project types fails, because
 these project do not contain issues.
-- Project needs better ADF support - conversion may sometimes fail
 
 ## <a name="future">Future</a>
 - Better ADF support
 - Ability to open IssuePanel while viewing some buffer with issue key in it
-- Navigate panels using shortcuts
+- Better navigation using shortcuts
