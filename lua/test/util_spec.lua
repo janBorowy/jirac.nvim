@@ -6,7 +6,7 @@ describe("utils", function()
     end)
 
     it("wrap word smaller than line", function ()
-        assert.are_same({"hello "}, utils.wrap_string("hello", 6))
+        assert.are_same({"hello"}, utils.wrap_string("hello", 6))
     end)
 
 
@@ -15,7 +15,7 @@ describe("utils", function()
     end)
 
     it("wrap varying text", function ()
-        assert.are_same({"this is a ", "looooooooong", "text "},
+        assert.are_same({"this is a", "looooooooong", "text"},
         utils.wrap_string("this is a looooooooong text", 10))
     end)
 

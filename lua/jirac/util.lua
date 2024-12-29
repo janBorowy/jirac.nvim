@@ -8,43 +8,32 @@ M.array_to_key_val_tbl = function (arr, key_function)
     return tbl
 end
 
-M.lin_search = function (tbl, find_function)
-    for k, v in pairs(tbl) do
-        if find_function(v) then
-            return k
-        end
-    end
-    return nil
-end
-
-M.to_array = function (tbl)
-    local result = {}
-    for _, v in pairs(tbl) do
-        result[#result + 1] = v
-    end
-    return result
-end
-
 M.wrap_string = function (str, line_len)
     local result = {}
-    local cur_line = ""
-    for word in string.gmatch(str, "%S+") do
-        if string.len(word) >= line_len then
-            if string.len(cur_line) > 0 then
-                table.insert(result, cur_line)
-                cur_line = ""
-            end
-            table.insert(result, word)
-        elseif string.len(cur_line) + string.len(word) + 1 > line_len then
-            table.insert(result, cur_line)
-            cur_line = ""
+    local buffer = ""
+    local function append(word)
+        if string.len(buffer) > 0 then
+            buffer = buffer .. " " .. word
         else
-            cur_line = cur_line .. word .. (string.len(cur_line) + string.len(word) == line_len and "" or " ")
+            buffer = word
         end
     end
-    if string.len(cur_line) > 0 then
-        table.insert(result, cur_line)
+    local function dump()
+        if string.len(buffer) > 0 then
+            result[#result + 1] = buffer
+        end
+        buffer = ""
     end
+
+    for word in string.gmatch(str, "%S+") do
+        if string.len(buffer) + string.len(word) + 1 <= line_len then
+            append(word)
+        else
+            dump()
+            append(word)
+        end
+    end
+    dump()
     return result
 end
 
