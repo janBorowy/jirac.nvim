@@ -7,6 +7,8 @@ developers can browse and edit tasks inside their editor. Jirac uses
 [nui-components.nvim](https://github.com/grapp-dev/nui-components.nvim) to provide
 user-friendly interface.
 
+![jirac-preview](docs/jirac-preview.gif)
+
 * [Features](#features)
 * [Requirements](#requirements)
 * [Installation](#installation)
@@ -23,7 +25,7 @@ user-friendly interface.
 * Browse and manipulate an issue's comments
 
 ## <a name="requirements">Requirements</a>
-* [Neovim](https://neovim.io/) - tested on >= 0.10.1
+* [Neovim](https://neovim.io/) - tested on >= 0.10. 1
 * [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) - for "plenary.curl"
 * [nui-components.nvim](https://github.com/grapp-dev/nui-components.nvim) - for UI
 * [nui.nvim](https://github.com/grapp-dev/nui-components.nvim) - dependency of nui-components.nvim
@@ -93,7 +95,7 @@ Search for a project using `<search_phrase>`
 
 `:JiracShow`
 
-Opens last closed panel
+Opens most recently closed panel
 
 ## <a name="configuration">Configuration</a>
 
