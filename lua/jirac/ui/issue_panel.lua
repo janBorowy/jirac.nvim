@@ -6,7 +6,9 @@ local ErrorPanel = require("jirac.ui.error_panel").ErrorPanel
 local IssueCommentPanel = require("jirac.ui.issue_comment_panel").IssueCommentPanel
 local ui_utils = require("jirac.ui.ui_utils")
 local ui_defaults = require("jirac.ui.ui_defaults")
+
 local flatmap_nil = require("jirac.util").flatmap_nil
+local build_value_field = require("jirac.ui.value_field").build_value_field
 
 local M = {}
 
@@ -160,13 +162,14 @@ function M.IssuePanel:_build_left_column()
             autofocus = true
         },
         nui.paragraph {
-            lines = "Description",
+            lines = ui_utils.get_field_label("Description", "focus-description"),
             is_focusable = false,
             padding = {
                 top = 1
             }
         },
         nui.button {
+            id = "description-field",
             flex = 1,
             lines = ui_utils.create_nui_lines(self.issue.description, self:_get_column_width()),
             on_press = function () self:_handle_edit_description() end
@@ -175,19 +178,18 @@ function M.IssuePanel:_build_left_column()
         nui.columns(
             { flex = 0 },
             nui.button {
-                lines = "Comments",
+                id = "comments-button",
+                lines = ui_utils.get_field_label("Comments", "focus-comments"),
                 on_press = function () self:_handle_open_issue_comment_panel() end,
                 padding = {
                     right = 4,
                 }
             },
-            nui.button {
-                lines = "Yank key",
-                on_press = function ()
-                    vim.cmd ("call setreg(\"+\",\"" .. self.issue.key .. "\", \"v\")")
-                end
-            },
-            nui.gap { flex = 1 }
+            nui.gap { flex = 1 },
+            nui.paragraph {
+                lines = ui_utils.get_label_with_shortcut("press", "yank-issue-key", " to yank key"),
+                is_focusable = false
+            }
         )
     )
 end
@@ -198,32 +200,40 @@ function M.IssuePanel:_build_right_column()
         fields[#fields+1] = f
     end
 
-    add_field(self._build_editable_field({
+    add_field(build_value_field({
+        button_id = "status-field",
+        mapping_key = "focus-status",
         label = "Status",
         value = flatmap_nil(self.issue.status) and self.issue.status.name,
         press_callback = function () self:_handle_transition_issue() end
     }))
-    add_field(self._build_editable_field({
+    add_field(build_value_field({
         label = "Issue type",
         value = flatmap_nil(self.issue.issue_type) and self.issue.issue_type.name,
         is_editable = false
     }))
-    add_field(self._build_editable_field({
+    add_field(build_value_field({
+        button_id = "assignee-field",
+        mapping_key = "focus-assignee",
         label = "Assignee",
         value = flatmap_nil(self.issue.assignee) and self.issue.assignee.displayName,
         press_callback = function () self:_handle_edit_assignee() end
     }))
-    add_field(self._build_editable_field({
+    add_field(build_value_field({
+        button_id = "parent-field",
+        mapping_key = "focus-parent",
         label = "Parent",
         value = flatmap_nil(self.issue.parent) and self.issue.parent.key,
         press_callback = function () self:_handle_edit_parent() end
     }))
-    add_field(self._build_editable_field({
+    add_field(build_value_field({
+        button_id = "reporter-field",
+        mapping_key = "focus-reporter",
         label = "Reporter",
         value = flatmap_nil(self.issue.reporter) and self.issue.reporter.displayName,
         press_callback = function () self:_handle_edit_reporter() end
     }))
-    add_field(self._build_editable_field({
+    add_field(build_value_field({
         label = "Priority",
         value = flatmap_nil(self.issue.priority) and self.issue.priority.name,
         is_editable = false
@@ -241,34 +251,6 @@ function M.IssuePanel:_build_right_column()
         },
         unpack(fields)
     )
-end
-
----@class EditableFieldParams
----@field label string
----@field value string?
----@field press_callback function?
----@field is_editable boolean?
-
----@param o EditableFieldParams
-function M.IssuePanel._build_editable_field(o)
-    return nui.rows(
-        { flex = 0 },
-        nui.paragraph {
-            lines = o.label,
-            padding = {
-                left = 1
-            },
-            is_focusable = false
-        },
-        nui.button {
-            lines = o.value or "Unspecified",
-            padding = {
-                left = 3,
-                bottom = 1
-            },
-            on_press = o.press_callback or function () end,
-            is_focusable = o.is_editable == nil or o.is_editable
-        })
 end
 
 function M.IssuePanel:build_nui_panel()
@@ -297,6 +279,28 @@ function M.IssuePanel:handle_signal(signal)
     if _signal_handlers[signal] then
         _signal_handlers[signal](self)
     end
+end
+
+function M.IssuePanel:_focus_if_exists(component_id)
+    local ref = self.parent:get_component_by_id(component_id)
+    if ref then
+        ref:focus()
+    end
+end
+
+function M.IssuePanel:get_mapping_definitions()
+    return {
+        ["focus-description"] = function () self:_focus_if_exists("description-field") end,
+        ["focus-status"] = function () self:_focus_if_exists("status-field") end,
+        ["focus-assignee"] = function () self:_focus_if_exists("assignee-field") end,
+        ["focus-parent"] = function () self:_focus_if_exists("parent-field") end,
+        ["focus-reporter"] = function () self:_focus_if_exists("reporter-field") end,
+        ["focus-comments"] = function () self:_focus_if_exists("comments-button") end,
+        ["yank-issue-key"] = function ()
+            vim.cmd ("call setreg(\"+\",\"" .. self.issue.key .. "\", \"v\")")
+            vim.cmd ("echo \"" .. "Yanked " .. self.issue.key .. "!" .. "\"")
+        end
+    }
 end
 
 ---@class IssuePanelParams : Panel

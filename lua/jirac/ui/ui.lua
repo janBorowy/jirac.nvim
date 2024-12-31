@@ -52,16 +52,16 @@ function M.JiraWindow:update_nui()
     self:_inject_mappings(
         vim.tbl_extend("force",
         self:_get_common_mapping_definitions(),
-        self:peek().get_mapping_definitions and self:peek().get_mapping_definitions()
+        self:peek().get_mapping_definitions and self:peek():get_mapping_definitions()
         or {}))
     self:_render()
 end
 
 function M.JiraWindow:_get_common_mapping_definitions()
     return {
-        ["close_window"] = function () self.renderer:close() end,
-        ["previous_tab"] = function () self:pop() end,
-        ["refresh_window"] = function () self:update_nui() end
+        ["close-window"] = function () self.renderer:close() end,
+        ["previous-tab"] = function () self:pop() end,
+        ["refresh-window"] = function () self:update_nui() end
     }
 end
 
@@ -86,6 +86,11 @@ function M.JiraWindow:handle_signal(signal)
     if self:peek().handle_signal then
         self:peek():handle_signal(signal)
     end
+end
+
+---@param id string
+function M.JiraWindow:get_component_by_id(id)
+    return self.renderer:get_component_by_id(id)
 end
 
 function M.JiraWindow:_render()

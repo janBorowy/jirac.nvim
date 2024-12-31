@@ -21,29 +21,59 @@ end
 ---@class Config
 ---@field default_project_key string?
 ---@field keymaps table?
+---@field show_keymaps boolean
 ---@field window_width integer
 ---@field window_height integer
 
 ---@type Config
 M._config = {
     default_project_key = "",
+    show_keymaps = true,
     window_width = 150,
     window_height = 50,
     keymaps = {}
 }
 
 local default_keymaps = {
-    ["close_window"] = {
+    ["close-window"] = {
         mode = 'n',
         key = 'q'
     },
-    ["previous_tab"] = {
+    ["previous-tab"] = {
         mode = 'n',
         key = 'H'
     },
-    ["refresh_window"] = {
+    ["refresh-window"] = {
         mode = 'n',
         key = "<F5>"
+    },
+
+    -- Issue panel default mappings
+    ["focus-description"] = {
+        mode = 'n',
+        key = 'd'
+    },
+    ["focus-comments"] = { mode = 'n', key = 'c'
+    },
+    ["focus-status"] = {
+        mode = 'n',
+        key = 's'
+    },
+    ["focus-assignee"] = {
+        mode = 'n',
+        key = 'a'
+    },
+    ["focus-parent"] = {
+        mode = 'n',
+        key = 'p'
+    },
+    ["focus-reporter"] = {
+        mode = 'n',
+        key = 'r'
+    },
+    ["yank-issue-key"] = {
+        mode = 'n',
+        key = 'y'
     }
 }
 

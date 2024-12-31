@@ -42,4 +42,20 @@ function M.transform_iso_date(iso_date)
     return string.sub(iso_date, 0, 10) .. " " .. string.sub(iso_date, 12, 16)
 end
 
+function M.get_label_with_shortcut(label, mapping_key, suffix)
+    suffix = suffix or ""
+    local keymaps = require("jirac.storage").get_config()
+    local keymap = keymaps.keymaps[mapping_key]
+    local key_label = keymap and keymap.mode == 'n' and keymap.key or nil
+    return label .. " " .. (key_label and '(' .. key_label .. ')' or "") .. suffix
+end
+
+function M.get_field_label(label, mapping_key)
+    if require("jirac.storage").get_config().show_keymaps then
+        return M.get_label_with_shortcut(label, mapping_key)
+    else
+        return label
+    end
+end
+
 return M
