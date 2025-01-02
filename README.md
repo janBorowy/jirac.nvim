@@ -132,15 +132,15 @@ require("jirac").setup({
     config = {
         default_project_key = "EXAMPLE"
         keymaps = {
-            ["close_window"] = {
+            ["close-window"] = {
                 mode = 'n',
                 key = 'q'
             },
-            ["previous_tab"] = {
+            ["previous-tab"] = {
                 mode = 'n',
                 key = 'H'
             },
-            ["refresh_window"] = {
+            ["refresh-window"] = {
                 mode = 'n',
                 key = "<F5>"
             }
@@ -150,6 +150,20 @@ require("jirac").setup({
     }
 })
 ```
+
+### Keymaps
+Here's a table of available keymaps:
+| Keymap              | Explanation                               | Default keys (all work in normal mode) |
+|---------------------|-------------------------------------------|----------------------------------------|
+| `close-window`      | Closes jirac window                       | q                                      |
+| `previous-tab`      | Move to previous tab                      | H                                      |
+| `refresh-window`    | Fetch resources and redraw current window | <F5>                                   |
+| `focus-description` | Focus description field in issue panel    | d                                      |
+| `focus-status`      | Focus status field in issue panel         | s                                      |
+| `focus-assignee`    | Focus assignee field in issue panel       | a                                      |
+| `focus-reporter`    | Focus reporter field in issue panel       | r                                      |
+| `focus-comments`    | Focus comments field in issue panel       | c                                      |
+| `yank-issue-key`    | Yank currently opened issue's key         | yk                                     |
 
 ### Nui-components highlighting
 Nui-components also uses its own highlight groups to determine highlighting in places

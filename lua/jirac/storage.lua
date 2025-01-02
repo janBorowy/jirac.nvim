@@ -53,7 +53,9 @@ local default_keymaps = {
         mode = 'n',
         key = 'd'
     },
-    ["focus-comments"] = { mode = 'n', key = 'c'
+    ["focus-comments"] = {
+        mode = 'n',
+        key = 'c'
     },
     ["focus-status"] = {
         mode = 'n',
@@ -73,7 +75,7 @@ local default_keymaps = {
     },
     ["yank-issue-key"] = {
         mode = 'n',
-        key = 'y'
+        key = 'yk'
     }
 }
 
