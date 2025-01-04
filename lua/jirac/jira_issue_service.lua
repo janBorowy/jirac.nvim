@@ -408,4 +408,8 @@ function M.transition_issue(issue_id_or_key, transition_id)
     check_for_error(response)
 end
 
+function M.get_issue_browse_url(issue_id_or_key)
+    return jira_service.get_jira_browse_url(issue_id_or_key)
+end
+
 return M

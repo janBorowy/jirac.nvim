@@ -57,6 +57,10 @@ local default_keymaps = {
         mode = 'n',
         key = 'c'
     },
+    ["focus-open-jira"] = {
+        mode = 'n',
+        key = 'o'
+    },
     ["focus-status"] = {
         mode = 'n',
         key = 's'

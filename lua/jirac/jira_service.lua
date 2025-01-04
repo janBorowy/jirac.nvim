@@ -6,6 +6,11 @@ function M.get_jira_url(resource, suffix)
     return "https://" .. credentials.jira_domain .. "/rest/api/3/" .. resource .. "/" .. suffix
 end
 
+function M.get_jira_browse_url(issue_id_or_key)
+    local credentials = require("jirac.storage").get_credentails()
+    return "https://" .. credentials.jira_domain .. "/browse/" .. issue_id_or_key
+end
+
 function M.get_base_opts()
     local credentials = require("jirac.storage").get_credentails()
     local opts = {

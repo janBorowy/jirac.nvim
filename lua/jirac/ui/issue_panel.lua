@@ -185,6 +185,11 @@ function M.IssuePanel:_build_left_column()
                     right = 4,
                 }
             },
+            nui.button {
+                id = "open-jira-button",
+                lines = ui_utils.get_field_label("Open in Jira", "focus-open-jira"),
+                on_press = function () vim.ui.open(issue_service.get_issue_browse_url(self.issue.key)) end,
+            },
             nui.gap { flex = 1 },
             nui.paragraph {
                 lines = ui_utils.get_label_with_shortcut("press", "yank-issue-key", " to yank key"),
@@ -296,6 +301,7 @@ function M.IssuePanel:get_mapping_definitions()
         ["focus-parent"] = function () self:_focus_if_exists("parent-field") end,
         ["focus-reporter"] = function () self:_focus_if_exists("reporter-field") end,
         ["focus-comments"] = function () self:_focus_if_exists("comments-button") end,
+        ["focus-open-jira"] = function () self:_focus_if_exists("open-jira-button") end,
         ["yank-issue-key"] = function ()
             vim.cmd ("call setreg(\"+\",\"" .. self.issue.key .. "\", \"v\")")
             vim.cmd ("echo \"" .. "Yanked " .. self.issue.key .. "!" .. "\"")
