@@ -162,7 +162,8 @@ Here's a table of available keymaps:
 | `focus-status`      | Focus status field in issue panel         | s                                      |
 | `focus-assignee`    | Focus assignee field in issue panel       | a                                      |
 | `focus-reporter`    | Focus reporter field in issue panel       | r                                      |
-| `focus-comments`    | Focus comments field in issue panel       | c                                      |
+| `focus-comments`    | Focus comments button in issue panel      | c                                      |
+| `focus-open-jira`   | Focus open in jira button in issue panel  | o                                      |
 | `yank-issue-key`    | Yank currently opened issue's key         | yk                                     |
 
 ### Nui-components highlighting
