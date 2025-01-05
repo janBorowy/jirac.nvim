@@ -7,8 +7,6 @@ local ProjectPanel = require("jirac.ui.project_panel").ProjectPanel
 local IssueSubmitPanel = require("jirac.ui.issue_submit_panel").IssueSubmitPanel
 local RequestErrorPanel = require("jirac.ui.request_error_panel").RequestErrorPanel
 
-local issue_service = require("jirac.jira_issue_service")
-
 local M = {}
 
 ---@class SetupOptions
