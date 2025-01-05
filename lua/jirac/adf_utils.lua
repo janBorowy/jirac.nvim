@@ -89,8 +89,7 @@ local block_node_mappers = {
     end,
     ["rule"] = function () return "\n" .. string.rep("-", 50) .. "\n" end,
     ["expand"] = function (n)
-        return "..." .. n.attrs.title or "" .. "\n" ..
-        map_sequential(n) .. "\n"
+        return "..." .. (n.attrs.title or "") .. "\n" .. map_sequential(n) .. "\n"
     end,
     ["mediaGroup"] = function (n) return map_sequential(n, true) end,
     ["mediaSingle"] = function (n) return map_sequential(n, true) end,
