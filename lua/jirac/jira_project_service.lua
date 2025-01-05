@@ -1,6 +1,7 @@
 local jira_service = require("jirac.jira_service")
 local curl = require("plenary.curl")
 local util = require("jirac.util")
+local request_executor = require("jirac.request_executor")
 
 local check_for_error = require("jirac.error").check_for_error
 
@@ -51,13 +52,16 @@ end
 ---@field query string
 
 ---@param query SearchProjectsQuery
----@return SearchProjectsDto
-function M.search_projects(query)
+---@return SearchProjectsDto | nil
+function M.search_projects(query, callback)
     local opts = jira_service.get_base_opts()
     opts.query = query or {}
-    local response = curl.get(get_url("search"), opts)
-
-    return serialize_project_response(vim.fn.json_decode(response.body))
+    return request_executor.wrap_get_request {
+        curl_opts = opts,
+        url = get_url("search"),
+        response_mapper = serialize_project_response,
+        callback = callback
+    }
 end
 
 ---@class ProjectCreateDto
@@ -175,12 +179,14 @@ function M.update_project(project_id_or_key, dto)
 end
 
 ---@param project_id_or_key string
----@return Project
-function M.get_project(project_id_or_key)
-    local opts = jira_service.get_base_opts()
-    local response = curl.get(get_url(project_id_or_key), opts)
-    check_for_error(response)
-    return M.transform_project(vim.fn.json_decode(response.body))
+---@return Project | nil
+function M.get_project(project_id_or_key, callback)
+    return request_executor.wrap_get_request {
+        response_mapper = M.transform_project,
+        curl_opts = jira_service.get_base_opts(),
+        callback = callback,
+        url = get_url(project_id_or_key)
+    }
 end
 
 return M

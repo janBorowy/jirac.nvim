@@ -19,11 +19,11 @@ function M.create_project(params)
             label_factory = function (v) return v.key .. " " .. v.name end,
             initial_query = params.initial_query or "",
             callback = params.callback,
-            search_callback = function (query)
-                return require("jirac.jira_project_service").search_projects {
+            search_callback = function (query, callback)
+                require("jirac.jira_project_service").search_projects({
                     maxResults = PAGE_SIZE,
                     query = query
-                }.values
+                }, function (data) callback(data.values) end)
             end
     }
 end
@@ -35,11 +35,11 @@ function M.create_user(params)
             label_factory = function (v) return v.displayName end,
             initial_query = params.initial_query or "",
             callback = params.callback,
-            search_callback = function (query)
-                return require("jirac.jira_user_service").search_users {
+            search_callback = function (query, callback)
+                require("jirac.jira_user_service").search_users({
                     maxResults = PAGE_SIZE,
                     query = query
-                }
+                }, function (data) callback(data) end)
             end
     }
 end
@@ -54,12 +54,12 @@ function M.create_issue(params)
             label_factory = issue_label_factory,
             initial_query = params.initial_query or "",
             callback = params.callback,
-            search_callback = function (query)
-                return require("jirac.jira_issue_service").search_project_issues {
+            search_callback = function (query, callback)
+                require("jirac.jira_issue_service").search_project_issues({
                     max_results = PAGE_SIZE,
                     search_phrase = query,
                     project_key = params.project_key
-                }
+                }, function (data) callback(data) end)
             end
     }
 end
@@ -74,8 +74,9 @@ function M.create_transition(params)
             label_factory = function (v) return v.name end,
             callback = params.callback,
             disable_search = true,
-            search_callback = function ()
-                return require("jirac.jira_issue_service").get_transitions(params.issue_id)
+            search_callback = function (_, callback)
+                require("jirac.jira_issue_service").get_transitions(params.issue_id,
+                function (data) callback(data) end)
             end
     }
 end
@@ -90,12 +91,12 @@ function M.create_jql(params)
         label_factory = issue_label_factory,
         initial_query = params.initial_query or "",
         callback = params.callback,
-        search_callback = function (jql)
-            return require("jirac.jira_issue_service").get_issues_by_jql {
+        search_callback = function (jql, callback)
+            require("jirac.jira_issue_service").get_issues_by_jql({
                 max_results = PAGE_SIZE,
                 jql = jql,
                 next_page_token = params.next_page_token
-            }
+            }, function (data) callback(data) end)
         end
     }
 end

@@ -68,9 +68,8 @@ end
 ---@field schema string
 
 ---@param params JqlSearchParams
----@return JqlSearchResponse
-local function perform_jql_search(params)
-    local url = jira_service.get_jira_url("search", "jql")
+---@return JqlSearchResponse | nil
+local function perform_jql_search(params, callback)
     local opts = jira_service.get_base_opts()
     opts.query = {
         jql = params.jql,
@@ -78,11 +77,11 @@ local function perform_jql_search(params)
         fields = "{id, self, key, description, status, summary,}",
         nextPageToken = params.next_page_token
     }
-    local response = curl.get(url, opts)
-
-    check_for_error(response)
-
-    return vim.fn.json_decode(response.body)
+    return request_executor.wrap_get_request {
+        url = jira_service.get_jira_url("search", "jql"),
+        callback = callback,
+        curl_opts = opts
+    }
 end
 
 local function perform_jql_count(jql)
@@ -97,9 +96,9 @@ local function perform_jql_count(jql)
 end
 
 ---@param params JqlSearchParams
----@return Array<Issue>
-function M.get_issues_by_jql(params)
-    return serialize_issues(perform_jql_search(params))
+---@return Array<Issue> | nil
+function M.get_issues_by_jql(params, callback)
+    return serialize_issues(perform_jql_search(params, callback))
 end
 
 ---@param params GetProjectIssuesParams
@@ -111,14 +110,20 @@ function M.get_project_issues(params)
 end
 
 ---@param params SearchProjectIssuesParams
----@return Array<Issue>
-function M.search_project_issues(params)
+---@return Array<Issue> |nil
+function M.search_project_issues(params, callback)
     local p = vim.fn.copy(params)
     p.jql = "project = " .. params.project_key ..
         (params.search_phrase and string.len(params.search_phrase) > 0 and
         " AND (summary ~ ".. params.search_phrase ..
         " OR description ~ " .. params.search_phrase .. ")"
         or "")
+    if callback then
+        perform_jql_search(p, function (data)
+            callback(serialize_issues(data))
+        end)
+        return nil
+    end
     return serialize_issues(perform_jql_search(p))
 end
 
@@ -370,22 +375,19 @@ end
 ---@field name string
 
 ---@return Array<Transition>
-function M.get_transitions(issue_id_or_key)
-    local url = get_url(issue_id_or_key .. "/transitions")
+function M.get_transitions(issue_id_or_key, callback)
     local opts = jira_service.get_base_opts()
     opts.query = {
         expand = "transitions.fields"
     }
-    local response = curl.get(url, opts)
-
-    check_for_error(response)
-    return vim.tbl_map(function (v)
-        return {
-            id = v.id,
-            name = v.name
-        }
-    end,
-    vim.fn.json_decode(response.body).transitions)
+    return request_executor.wrap_get_request {
+        url = get_url(issue_id_or_key .. "/transitions"),
+        curl_opts = opts,
+        response_mapper = function (data)
+            return data.transitions
+        end,
+        callback = callback
+    }
 end
 
 function M.transition_issue(issue_id_or_key, transition_id)

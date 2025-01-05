@@ -59,12 +59,14 @@ end
 
 ---@param query SearchUsersQuery
 ---@return Array<User>
-function M.search_users(query)
+function M.search_users(query, callback)
     local opts = jira_service.get_base_opts()
     opts.query = query or {}
-    local response = curl.get(jira_service.get_jira_url("user", "search"), opts)
-    check_for_error(response)
-    return vim.fn.json_decode(response.body)
+    return request_executor.wrap_get_request {
+        callback = callback,
+        curl_opts = opts,
+        url = jira_service.get_jira_url("user", "search")
+    }
 end
 
 ---@param project_id_or_key string

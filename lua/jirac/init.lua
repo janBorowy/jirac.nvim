@@ -78,7 +78,7 @@ end
 local function create_project_panel(project_key)
     local window = create_new_window()
     window:push(ProjectPanel:new {
-        project_id_or_key = project_key
+        project_key = project_key
     })
 end
 
@@ -94,7 +94,7 @@ local function create_project_prompt(search_phrase)
         initial_query = search_phrase,
         callback = function (project)
             window:push(ProjectPanel:new {
-                project_id_or_key = project.key
+                project_key = project.key
             })
         end
     })

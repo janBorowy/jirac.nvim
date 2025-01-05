@@ -19,7 +19,6 @@ end
 
 function M.ObjectSearchPrompt:_handle_search()
     local query = self:_get_search_phrase_value()
-    self.values = self.search_callback(self:_get_search_phrase_value())
     self.initial_query = query
     self.parent:update_nui()
 end
@@ -88,8 +87,16 @@ function M.ObjectSearchPrompt:build_nui_panel()
     )
 end
 
+function M.ObjectSearchPrompt:fetch_resources(callback)
+    self.search_callback(self.initial_query,
+    function(values)
+        self.values = values
+        callback()
+    end)
+end
+
 ---@class ObjectSearchPrompt : Panel
----@field values Array<any>
+---@field values Array
 ---@field label_factory function
 ---@field header string
 ---@field initial_query string?
@@ -104,9 +111,6 @@ function M.ObjectSearchPrompt:new(o)
     o = o or {}
     self.__index = self
     setmetatable(o, self)
-
-    o.values = o.search_callback(o.initial_query)
-
     return o
 end
 

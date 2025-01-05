@@ -24,21 +24,11 @@ function M.ProjectPanel:_handle_create_issue()
     })
 end
 
----@return Array<Issue>
-function M.ProjectPanel:_fetch_issues()
-    return issue_service.search_project_issues {
-        max_results = ISSUE_PAGE_SIZE,
-        project_key = self.project.key,
-        search_phrase = self.search_phrase
-    }
-end
-
 function M.ProjectPanel:_handle_refresh_issues()
     self.search_phrase = self.parent.renderer:get_component_by_id("search-phrase"):get_current_value()
     self.parent:swap(M.ProjectPanel:new {
         search_phrase = self.search_phrase,
-        project = self.project,
-        project_id_or_key = self.project.key
+        project_key = self.project_key
     })
 end
 
@@ -151,8 +141,22 @@ function M.ProjectPanel:build_nui_panel()
     ))
 end
 
+function M.ProjectPanel:fetch_resources(callback)
+    project_service.get_project(self.project_key, function (project)
+        self.project = project
+        issue_service.search_project_issues({
+            max_results = ISSUE_PAGE_SIZE,
+            project_key = self.project_key,
+            search_phrase = self.search_phrase
+        }, function (issues)
+            self.issues = issues
+            callback()
+        end)
+    end)
+end
+
 ---@class ProjectPanelParams : Panel
----@field project_id_or_key string
+---@field project_key string
 ---@field issues Array<Issue>?
 ---@field search_phrase string?
 
@@ -161,9 +165,7 @@ function M.ProjectPanel:new(o)
     o = o or {}
     self.__index = self
     setmetatable(o, self)
-    o.project = o.project or project_service.get_project(o.project_id_or_key)
     o.search_phrase = o.search_phrase or ""
-    o.issues = o:_fetch_issues()
     return o
 end
 
