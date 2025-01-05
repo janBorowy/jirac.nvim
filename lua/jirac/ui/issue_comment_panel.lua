@@ -11,7 +11,7 @@ local M = {}
 local PAGE_SIZE = 3
 
 M.IssueCommentPanel = {
-    issue = {},
+    issue_key = "",
     page = 1
 }
 
@@ -49,7 +49,7 @@ function M.IssueCommentPanel:_handle_edit_comment(c)
                 return
             end
             local success, obj = pcall(comment_service.edit_comment, {
-                issue_id_or_key = self.issue.key,
+                issue_id_or_key = self.issue_key,
                 comment_id = c.id,
                 text = new_text
             })
@@ -70,7 +70,7 @@ function M.IssueCommentPanel:_handle_delete_comment(comment)
         no_label = "No",
         callback = function ()
             local success, obj = pcall(comment_service.delete_comment, {
-                issue_id_or_key = self.issue.id,
+                issue_id_or_key = self.issue_key,
                 comment_id = comment.id
             })
 
@@ -95,7 +95,7 @@ end
 function M.IssueCommentPanel:_handle_next_page()
     if self.page < self:_get_max_page() then
         self.parent:swap(M.IssueCommentPanel:new {
-            issue = self.issue,
+            issue_key = self.issue_key,
             page = self.page + 1
         })
     end
@@ -104,7 +104,7 @@ end
 function M.IssueCommentPanel:_handle_previous_page()
     if self.page > 1 then
         self.parent:swap(M.IssueCommentPanel:new {
-            issue = self.issue,
+            issue_key = self.issue_key,
             page = self.page - 1
         })
     end
@@ -113,15 +113,6 @@ end
 function M.IssueCommentPanel:_is_user_comment(c)
     local credentials = require("jirac.storage")._credentials
     return c.author.emailAddress == credentials.email
-end
-
-function M.IssueCommentPanel:_fetch_comments()
-    return comment_service.get_comments {
-        issue_id_or_key = self.issue.id,
-        max_results = PAGE_SIZE,
-        start_at = (self.page - 1) * PAGE_SIZE,
-        order_by = "-created"
-    }
 end
 
 function M.IssueCommentPanel:_create_comment_components()
@@ -157,11 +148,10 @@ function M.IssueCommentPanel:_create_comment_components()
 end
 
 function M.IssueCommentPanel:build_nui_panel()
-    self.api_response = self:_fetch_comments()
     local components = {}
     table.insert(components, nui.paragraph {
             align = "center",
-            lines = "Comments for " .. self.issue.key,
+            lines = "Comments for " .. self.issue_key,
             autofocus = true
         })
     local comment_components = self:_create_comment_components()
@@ -203,10 +193,22 @@ function M.IssueCommentPanel:build_nui_panel()
     table.insert(components, nui.gap(1))
     return nui.rows(unpack(components))
 end
+
+function M.IssueCommentPanel:fetch_resources(callback)
+    comment_service.get_comments({
+        issue_id_or_key = self.issue_key,
+        max_results = PAGE_SIZE,
+        start_at = (self.page - 1) * PAGE_SIZE,
+        order_by = "-created"
+    }, function (response)
+        self.api_response = response
+        callback()
+    end)
+end
+
 ---@class IssueCommentPanelParams : Panel
----@field issue IssueDetailed
+---@field issue_key string
 ---@field page integer
----@field api_response GetCommentsResponse?
 
 ---@param o IssueCommentPanelParams
 function M.IssueCommentPanel:new(o)

@@ -1,6 +1,7 @@
 local curl = require("plenary.curl")
 local jira_service = require("jirac.jira_service")
 local adf_utils = require("jirac.adf_utils")
+local request_executor = require("jirac.request_executor")
 
 local check_for_error = require("jirac.error").check_for_error
 
@@ -49,25 +50,27 @@ local function transform_comment_data(data)
 end
 
 ---@param params GetCommentsParams
----@return GetCommentsResponse
-function M.get_comments(params)
-    local url = get_url(params.issue_id_or_key)
+---@return GetCommentsResponse | nil
+function M.get_comments(params, callback)
     local opts = jira_service.get_base_opts()
     opts.query = {
         startAt = params.start_at,
         maxResults = params.max_results,
         orderBy = params.order_by
     }
-    local response = curl.get(url, opts)
 
-    check_for_error(response)
-
-    local data = vim.json.decode(response.body)
-    return {
-        values = vim.tbl_map(transform_comment_data, data.comments),
-        max_results = data.maxResults,
-        start_at = data.startAt,
-        total = data.total
+    return request_executor.wrap_get_request {
+        url = get_url(params.issue_id_or_key),
+        callback = callback,
+        curl_opts = opts,
+        response_mapper = function (data)
+            return {
+                values = vim.tbl_map(transform_comment_data, data.comments),
+                max_results = data.maxResults,
+                start_at = data.startAt,
+                total = data.total
+            }
+        end
     }
 end
 

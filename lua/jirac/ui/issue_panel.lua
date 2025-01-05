@@ -148,7 +148,7 @@ end
 function M.IssuePanel:_handle_open_issue_comment_panel()
     self.parent:push(IssueCommentPanel:new {
         parent = self.parent,
-        issue = self.issue,
+        issue_key = self.issue.key,
         page = 1
     })
 end
