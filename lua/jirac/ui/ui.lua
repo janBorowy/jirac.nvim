@@ -91,13 +91,6 @@ function M.JiraWindow:_inject_mappings(mapping_definitions)
     self.renderer:add_mappings(mappings)
 end
 
----@param signal JiracWindowSignal
-function M.JiraWindow:handle_signal(signal)
-    if self:peek().handle_signal then
-        self:peek():handle_signal(signal)
-    end
-end
-
 ---@param id string
 function M.JiraWindow:get_component_by_id(id)
     return self.renderer:get_component_by_id(id)

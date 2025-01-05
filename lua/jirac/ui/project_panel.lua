@@ -151,19 +151,6 @@ function M.ProjectPanel:build_nui_panel()
     ))
 end
 
-local _signal_handlers = {
-    ["issue_created"] = function (self)
-        self.parent:update_nui()
-    end
-}
-
----@param signal JiracWindowSignal
-function M.ProjectPanel:handle_signal(signal)
-    if _signal_handlers[signal] then
-        _signal_handlers[signal](self)
-    end
-end
-
 ---@class ProjectPanelParams : Panel
 ---@field project_id_or_key string
 ---@field issues Array<Issue>?

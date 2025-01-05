@@ -273,19 +273,6 @@ function M.IssuePanel:build_nui_panel()
     )
 end
 
-local _signal_handlers = {
-    ["issue_updated"] = function (self)
-        self.parent:update_nui()
-    end
-}
-
----@param signal JiracWindowSignal
-function M.IssuePanel:handle_signal(signal)
-    if _signal_handlers[signal] then
-        _signal_handlers[signal](self)
-    end
-end
-
 function M.IssuePanel:_focus_if_exists(component_id)
     local ref = self.parent:get_component_by_id(component_id)
     if ref then
