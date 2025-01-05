@@ -119,28 +119,28 @@ function M.IssuePanel:_handle_edit_assignee()
         end
     })
 end
-
-function M.IssuePanel:_handle_edit_description()
-    self.parent:push(TextInputPrompt:new {
-        parent = self.parent,
-        border_label = "Description",
-        initial_value = self.issue.description,
-        callback = function (new_description)
-            if flatmap_nil(self.issue.description) and self.issue.description == new_description then
-                self.parent:pop()
-                return
-            end
-            local success, obj = pcall(issue_service.update_description, self.issue.key, new_description)
-            if success then
-                self.issue.description = obj.description
-                self.parent:pop()
-            else
-                self:_handle_edit_error(obj)
-            end
-        end
-    })
-end
-
+--
+-- function M.IssuePanel:_handle_edit_description()
+--     self.parent:push(TextInputPrompt:new {
+--         parent = self.parent,
+--         border_label = "Description",
+--         initial_value = self.issue.description,
+--         callback = function (new_description)
+--             if flatmap_nil(self.issue.description) and self.issue.description == new_description then
+--                 self.parent:pop()
+--                 return
+--             end
+--             local success, obj = pcall(issue_service.update_description, self.issue.key, new_description)
+--             if success then
+--                 self.issue.description = obj.description
+--                 self.parent:pop()
+--             else
+--                 self:_handle_edit_error(obj)
+--             end
+--         end
+--     })
+-- end
+--
 function M.IssuePanel:_get_column_width()
     return (require("jirac.storage").get_config().window_width - 2 * ui_defaults.PADDING.horizontal) * 3 / 4
 end
@@ -168,11 +168,10 @@ function M.IssuePanel:_build_left_column()
                 top = 1
             }
         },
-        nui.button {
+        nui.paragraph {
             id = "description-field",
             flex = 1,
-            lines = ui_utils.create_nui_lines(self.issue.description, self:_get_column_width()),
-            on_press = function () self:_handle_edit_description() end
+            lines = ui_utils.create_nui_lines(self.issue.description, self:_get_column_width())
         },
         nui.gap(1),
         nui.columns(
