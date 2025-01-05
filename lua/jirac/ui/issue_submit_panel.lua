@@ -18,25 +18,6 @@ function M.IssueSubmitPanel:_get_field_value(id)
     return ref:get_current_value()
 end
 
-function M.IssueSubmitPanel:_fetch_assignee_selection_data()
-    return vim.tbl_map(function (t)
-        t.id = t.accountId
-        return nui.option(t.displayName ..
-            (t.emailAddress and string.len(t.emailAddress) ~= 0
-            and " (" .. t.emailAddress .. ")" or ""), t)
-    end, user_service.find_users_assignable_to_issue
-        {
-            query = "",
-            project_id_or_key = self.project.id
-        })
-end
-
-function M.IssueSubmitPanel:_fetch_issue_type_data()
-    return vim.tbl_map(function (t)
-        return nui.option(t.name .. " - " .. t.description, t)
-    end, issue_service.get_issue_types())
-end
-
 function M.IssueSubmitPanel:_handle_project_submit_error(obj)
     local panel = ErrorPanel:new({
         errors = obj.errors
@@ -199,16 +180,45 @@ function M.IssueSubmitPanel:build_nui_panel()
     return self._form
 end
 
+function M.IssueSubmitPanel:_fetch_assignee_selection_data(callback)
+    user_service.find_users_assignable_to_issue(self.project.id,
+    function (users)
+        self.assignee_selection_data = vim.tbl_map(function (t)
+            t.id = t.accountId
+            return nui.option(t.displayName ..
+            (t.emailAddress and string.len(t.emailAddress) ~= 0
+            and " (" .. t.emailAddress .. ")" or ""), t)
+        end, users)
+        callback()
+    end)
+end
+
+function M.IssueSubmitPanel:_fetch_issue_type_data(callback)
+    issue_service.get_issue_types(function (types)
+        self.issue_type_data = vim.tbl_map(function(t)
+        return nui.option(t.name .. " - " .. t.description, t)
+        end, types)
+        callback()
+    end)
+end
+
+
 ---@class IssueSubmitPanelParams : Panel
 ---@field project Project
 ---@field callback function
+
+function M.IssueSubmitPanel:fetch_resources(callback)
+    self:_fetch_assignee_selection_data(function ()
+        self:_fetch_issue_type_data(function ()
+            callback()
+        end)
+    end)
+end
 
 function M.IssueSubmitPanel:new(o)
     o = o or {}
     self.__index = self
     setmetatable(o, self)
-    o.assignee_selection_data = o.assignee_selection_data or o:_fetch_assignee_selection_data()
-    o.issue_type_data = o.issue_type_data or o:_fetch_issue_type_data()
     o.form_data = o.form_data or {
         summary = "",
         issue_type_id = "",

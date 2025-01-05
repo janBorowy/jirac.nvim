@@ -1,6 +1,7 @@
 local jira_service = require "jirac.jira_service"
 local curl = require "plenary.curl"
 local check_for_error = require ("jirac.error").check_for_error
+local request_executor = require("jirac.request_executor")
 
 local M = {}
 
@@ -66,43 +67,20 @@ function M.search_users(query)
     return vim.fn.json_decode(response.body)
 end
 
----@class FindProjectAssignableQuery
----@field projectKeys string
----@field query string | nil
----@field username string | nil
----@field accountId string | nil
----@field startAt integer | nil
----@field maxResults integer | nil
-
----@param query FindProjectAssignableQuery
----@return Array<User>
-function M.find_users_assignable_to_project(query)
-    local opts = jira_service.get_base_opts()
-    opts.query = query or {}
-    local response = curl.get(get_url("assignable/multiProjectSearch"), opts)
-
-    check_for_error(response)
-
-    return vim.fn.json_decode(response.body)
-end
-
----@class FindUsersAssignableToIssueQuery
----@field query string
----@field project_id_or_key string
-
----@param query FindUsersAssignableToIssueQuery
----@return Array<User>
-function M.find_users_assignable_to_issue(query)
+---@param project_id_or_key string
+---@return Array<User> | nil
+function M.find_users_assignable_to_issue(project_id_or_key, callback)
     local opts = jira_service.get_base_opts()
     opts.query = {
-        query = query.query,
-        project = query.project_id_or_key
+        query = "",
+        project = project_id_or_key
     }
-    local response = curl.get(get_url("assignable/search"), opts)
 
-    check_for_error(response)
-
-    return vim.fn.json_decode(response.body)
+    return request_executor.wrap_get_request {
+        curl_opts = opts,
+        url = get_url("assignable/search"),
+        callback = callback
+    }
 end
 
 return M

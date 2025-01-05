@@ -1,5 +1,3 @@
-local decode_json = require("lunajson").decode
-
 local M = {}
 
 ---@alias ERROR_TYPE
@@ -16,7 +14,7 @@ local M = {}
 
 ---@return Error
 local function create_error(body, status)
-    return vim.tbl_extend("error", body and decode_json(body) or {}, {
+    return vim.tbl_extend("error", body and vim.fn.json_decode(body) or {}, {
         status = status
     })
 end

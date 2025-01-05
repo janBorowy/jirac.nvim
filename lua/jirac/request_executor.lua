@@ -5,7 +5,7 @@ local M = {}
 
 ---@class GetRequestOptions
 ---@field callback function
----@field response_mapper function
+---@field response_mapper function?
 ---@field url string
 ---@field curl_opts table
 
@@ -17,7 +17,10 @@ function M.wrap_get_request(opts)
         opts.curl_opts.callback = vim.schedule_wrap(function (response)
             check_for_error(response)
             local result = vim.fn.json_decode(response.body)
-            return opts.callback(opts.response_mapper(result))
+            if opts.response_mapper then
+                return opts.callback(opts.response_mapper(result))
+            end
+            return opts.callback(result)
         end)
         curl.get(opts.url, opts.curl_opts)
         return nil
@@ -26,7 +29,10 @@ function M.wrap_get_request(opts)
 
         check_for_error(response)
 
-        return opts.response_mapper(vim.fn.json_decode(response.body))
+        if opts.response_mapper then
+            return opts.response_mapper(vim.fn.json_decode(response.body))
+        end
+        return vim.fn.json_decode(response.body)
     end
 end
 

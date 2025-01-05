@@ -56,11 +56,9 @@ local function create_issue_prompt(search_phrase, project_key)
         project_key = project_key,
         initial_query = search_phrase,
         callback = function (issue)
-            issue_service.get_issue_detailed(issue.id, function (issue_detailed)
-                window:push(IssuePanel:new {
-                    issue = issue_detailed
-                })
-            end)
+            window:push(IssuePanel:new {
+                issue_id_or_key = issue.id
+            })
         end
     })
 end

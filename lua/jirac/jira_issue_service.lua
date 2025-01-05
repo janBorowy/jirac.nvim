@@ -186,21 +186,13 @@ end
 ---@field description string
 ---@field name string
 
-local function transform_issue_type(data)
-    return {
-        id = data.id,
-        description = data.description,
-        name = data.name
-    }
-end
-
 ---@return Array<IssueType>
-function M.get_issue_types()
-    local url = jira_service.get_jira_url("issuetype")
-    local opts = jira_service.get_base_opts()
-    local response = curl.get(url, opts)
-    check_for_error(response)
-    return vim.tbl_map(transform_issue_type, vim.fn.json_decode(response.body))
+function M.get_issue_types(callback)
+    return request_executor.wrap_get_request {
+        url = jira_service.get_jira_url("issuetype"),
+        callback = callback,
+        curl_opts = jira_service.get_base_opts()
+    }
 end
 
 ---@class IssueCreateDto
@@ -289,8 +281,7 @@ local function serialize_project_issue_detailed(data)
                 data.fields.project and
                 project_service.transform_project(data.fields.project),
             issue_type = data.fields and
-                data.fields.issuetype and
-                transform_issue_type(data.fields.issuetype)
+                data.fields.issuetype
         }
     )
 end
@@ -298,7 +289,6 @@ end
 ---@param issue_id_or_key string
 ---@return IssueDetailed | nil
 function M.get_issue_detailed(issue_id_or_key, callback)
-    local url = get_url(issue_id_or_key)
     local opts = jira_service.get_base_opts()
     opts.query = {
         fields = "{id, self, key, description, status, summary, \
@@ -308,7 +298,7 @@ function M.get_issue_detailed(issue_id_or_key, callback)
     return request_executor.wrap_get_request {
         response_mapper = serialize_project_issue_detailed,
         curl_opts = opts,
-        url = url,
+        url = get_url(issue_id_or_key),
         callback = callback
     }
 end
