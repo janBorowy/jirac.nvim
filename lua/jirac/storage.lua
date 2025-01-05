@@ -91,7 +91,11 @@ end
 ---@param c Config
 function M.set_config(c)
     M._config = vim.tbl_extend("force", M._config, c)
-    M._config.keymaps = vim.tbl_extend("force", default_keymaps, c.keymaps)
+    if (c.keymaps) then
+        M._config.keymaps = vim.tbl_extend("force", default_keymaps, c.keymaps)
+    else
+        M._config.keymaps = {}
+    end
 end
 
 M._window = nil
