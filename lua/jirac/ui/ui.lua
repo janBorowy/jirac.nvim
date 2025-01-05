@@ -47,7 +47,7 @@ end
 function M.JiraWindow:update_nui()
     if self:peek().fetch_resources then
         self:peek():fetch_resources(vim.schedule_wrap(function()
-            self:_recreate_renderer()
+                self:_recreate_renderer()
         end))
         return
     end
