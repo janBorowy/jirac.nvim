@@ -2,6 +2,7 @@ local jira_service = require("jirac.jira_service")
 local project_service = require("jirac.jira_project_service")
 local curl = require("plenary.curl")
 local adf_utils = require("jirac.adf_utils")
+local request_executor = require("jirac.request_executor")
 
 local check_for_error = require("jirac.error").check_for_error
 
@@ -295,19 +296,21 @@ local function serialize_project_issue_detailed(data)
 end
 
 ---@param issue_id_or_key string
----@return IssueDetailed
-function M.get_issue_detailed(issue_id_or_key)
+---@return IssueDetailed | nil
+function M.get_issue_detailed(issue_id_or_key, callback)
     local url = get_url(issue_id_or_key)
     local opts = jira_service.get_base_opts()
     opts.query = {
         fields = "{id, self, key, description, status, summary, \
         parent, assignee, reporter, priority, project, issuetype,}"
     }
-    local response = curl.get(url, opts)
 
-    check_for_error(response)
-
-    return serialize_project_issue_detailed(vim.fn.json_decode(response.body))
+    return request_executor.wrap_get_request {
+        response_mapper = serialize_project_issue_detailed,
+        curl_opts = opts,
+        url = url,
+        callback = callback
+    }
 end
 
 local function edit_issue(issue_id_or_key, fields_obj)

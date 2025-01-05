@@ -309,6 +309,13 @@ function M.IssuePanel:get_mapping_definitions()
     }
 end
 
+function M.IssuePanel:fetch_resources(callback)
+    issue_service.get_issue_detailed(self.issue_id_or_key, function (issue)
+        self.issue = issue
+        callback()
+    end)
+end
+
 ---@class IssuePanelParams : Panel
 ---@field issue_id_or_key string
 
@@ -317,7 +324,6 @@ function M.IssuePanel:new(o)
     o = o or {}
     self.__index = self
     setmetatable(o, self)
-    o.issue = issue_service.get_issue_detailed(o.issue_id_or_key)
     return o
 end
 

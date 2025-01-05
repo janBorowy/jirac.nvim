@@ -11,8 +11,8 @@ local M = {}
 ---@class Panel
 ---@field size Size
 ---@field build_nui_panel function
----@field handle_signal function?
 ---@field get_mapping_definitions function?
+---@field fetch_resources function?
 ---@field parent any
 ---@field new function
 ---@field __index any
@@ -45,6 +45,16 @@ function M.JiraWindow:swap(panel)
 end
 
 function M.JiraWindow:update_nui()
+    if self:peek().fetch_resources then
+        self:peek():fetch_resources(vim.schedule_wrap(function()
+            self:_recreate_renderer()
+        end))
+        return
+    end
+    self:_recreate_renderer()
+end
+
+function M.JiraWindow:_recreate_renderer()
     if self.renderer then self.renderer:close() end
     self.renderer = nui.create_renderer {
         width = self:peek().size and self:peek().size.width or require("jirac.storage").get_config().window_width,

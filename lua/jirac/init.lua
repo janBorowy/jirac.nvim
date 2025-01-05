@@ -7,6 +7,8 @@ local ProjectPanel = require("jirac.ui.project_panel").ProjectPanel
 local IssueSubmitPanel = require("jirac.ui.issue_submit_panel").IssueSubmitPanel
 local RequestErrorPanel = require("jirac.ui.request_error_panel").RequestErrorPanel
 
+local issue_service = require("jirac.jira_issue_service")
+
 local M = {}
 
 ---@class SetupOptions
@@ -54,9 +56,11 @@ local function create_issue_prompt(search_phrase, project_key)
         project_key = project_key,
         initial_query = search_phrase,
         callback = function (issue)
-            window:push(IssuePanel:new {
-                issue_id_or_key  = issue.id,
-            })
+            issue_service.get_issue_detailed(issue.id, function (issue_detailed)
+                window:push(IssuePanel:new {
+                    issue = issue_detailed
+                })
+            end)
         end
     })
 end
