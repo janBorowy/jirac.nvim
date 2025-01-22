@@ -35,6 +35,7 @@ M._config = {
 }
 
 local default_keymaps = {
+    --- default general mappings
     ["close-window"] = {
         mode = 'n',
         key = 'q'

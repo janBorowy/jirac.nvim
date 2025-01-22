@@ -27,7 +27,7 @@ function M.IssueCommentPanel:_handle_add_comment()
         initial_value = "",
         callback = function (text)
             local success, obj = pcall(comment_service.post_comment, {
-                issue_id_or_key = self.issue.key,
+                issue_id_or_key = self.issue_key,
                 text = text
             })
             if success then

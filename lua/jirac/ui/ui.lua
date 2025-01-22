@@ -75,6 +75,7 @@ function M.JiraWindow:_get_common_mapping_definitions()
     }
 end
 
+---@param mapping_definitions table<string, function>
 function M.JiraWindow:_inject_mappings(mapping_definitions)
     local mappings = {}
     local config = require("jirac.storage").get_config()

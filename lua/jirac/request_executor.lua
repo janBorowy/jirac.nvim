@@ -9,8 +9,8 @@ local M = {}
 ---@field url string
 ---@field curl_opts table
 
---- Based on existence of callback, either do curl on main
---- thread or create new job
+--- if callback is nil - curl on main thread
+--- otherwise curl asynchronously and call observable 
 ---@param opts GetRequestOptions
 function M.wrap_get_request(opts)
     if opts.callback then
