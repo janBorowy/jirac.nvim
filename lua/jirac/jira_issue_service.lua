@@ -96,9 +96,13 @@ local function perform_jql_count(jql)
 end
 
 ---@param params JqlSearchParams
----@return Array<Issue> | nil
+---@return Array<Issue>
 function M.get_issues_by_jql(params, callback)
-    return serialize_issues(perform_jql_search(params, callback))
+    return perform_jql_search(params,
+        function (data)
+            callback(serialize_issues(data))
+        end
+    )
 end
 
 ---@param params GetProjectIssuesParams

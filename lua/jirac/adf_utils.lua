@@ -45,7 +45,7 @@ end
 local inline_node_mappers = {
     ["text"] = function (n) return map_with_tab(n.depth, n.text) end,
     ["hardBreak"] = function () return "\n" end,
-    ["media"] = function (n) return map_with_tab(n.depth, "(image)[" .. n.attrs.alt .. "]") end,
+    ["media"] = function (n) return map_with_tab(n.depth, "(image)" .. (n.attrs.alt and ("[" .. (n.attrs.alt) .. "]") or "")) end,
     ["emoji"] = function (n) return map_with_tab(n.depth, n.attrs.text) end,
     ["mention"] = function (n) return map_with_tab(n.depth, n.attrs.text) end,
     ["date"] = function (n) return map_with_tab(n.depth, date_str_from_epoch()) end,
@@ -83,7 +83,7 @@ local block_node_mappers = {
             .. map_sequential(n)
     end,
     ["codeBlock"] = function (n)
-        return "'''" .. n.attrs.language .. "\n" ..
+        return "'''" .. (n.attrs.language or "") .. "\n" ..
             map_sequential(n)
         .. "\n'''\n"
     end,

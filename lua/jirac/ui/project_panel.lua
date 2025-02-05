@@ -95,7 +95,9 @@ function M.ProjectPanel:_build_issues_column()
     #key_column > 0 and nui.columns(
         { flex = 0 },
         nui.rows(unpack(key_column)),
-        nui.rows(unpack(summary_column)),
+        nui.gap(4),
+        nui.rows({flex = 3}, unpack(summary_column)),
+        nui.gap(4),
         nui.rows(unpack(status_column))
     ) or nui.gap(1),
     nui.gap { flex = 1 })

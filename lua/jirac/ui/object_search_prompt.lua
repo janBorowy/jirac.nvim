@@ -27,9 +27,10 @@ function M.ObjectSearchPrompt:_build_selection_rows()
     local rows = {}
     for i, v in ipairs(self.values) do
         rows[#rows + 1] = nui.button {
-            lines = vim.tbl_map(function (txt)
-                return nui.line(nui.text(txt))
-            end, util.wrap_string(self.label_factory(v), self.size.width)),
+            -- lines = vim.tbl_map(function (txt)
+            --     return nui.line(nui.text(txt))
+            -- end, util.wrap_string(self.label_factory(v), self.size.width)),
+            lines = self.label_factory(v),
             autofocus = i == 1,
             align = "center",
             on_press = function () self.callback(v) end
